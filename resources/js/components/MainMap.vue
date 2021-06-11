@@ -29,44 +29,44 @@
                         </thead>
 
                         <tbody>
-                            <tr v-for="(review, index) in sortReviews" :key=index class="bg-white">
+                            <tr v-for="(review, index) in getReviews" :key=index class="bg-white">
                                 <!--<td class="text-center align-middle">{{ inventory.id }}</td>-->
                                 <td class="text-center align-middle">{{ review.user_name }}</td>
                                 <td class="text-center align-middle">{{ review.name }}</td>
                                 <td class="text-center align-middle" style="white-space: pre;">{{ review.comment }}</td>
                                 <td><button type="button" class="btn btn-danger" v-show="own.name === review.user_name" @click="onDelete(review.id)">削除</button></td>
                             </tr>
-                            
                         </tbody>
                     </table>
-                    <!-- <pagination
-                      :page="currentPage"
-                      :items-per-page="itemsPerPage"
-                      :max-visible-pages="maxVisiblePages"
-                      :total-items="totalItems"
-                      @pageChange="pageChange"
-                    /> -->
+                    <paginate
+    :page-count="getPageCount"
+    :page-range="10"
+    :margin-pages="2"
+    :click-handler="clickCallback"
+    :prev-text="'＜'"
+    :next-text="'＞'"
+    :container-class="'pagination'"
+    :page-class="'page-item'">
+  </paginate>
+
 </div>
 </template>
 
 <script>
-
+import MgPaginate from 'vue-mg-paginate'
 import GoogleMapsApiLoader from 'google-maps-api-loader';
 export default {
   name: 'Map',
   data() {
     return {
       reviews: [],
-      type: 1,
-      currentPage: 0,
-      itemsPerPage: 5,
-      maxVisiblePages: 4,
-      totalItems: 0,
-      offset: 0,
+      pagenate: ['paginate-log'],
       place: '岡崎橋ビル', 
       selected: null,
       google: null,
       own_user_name: '',
+      parpage: 5,
+      currentPage: 1,
       isLoading: false,
       fullPage: false,
       
@@ -102,6 +102,9 @@ export default {
     initializeMap() {
       new this.google.maps.Map(this.$refs.googleMap, this.mapConfig);
     },
+    clickCallback: function(pageNum) {
+      this.currentPage = Number(pageNum);
+    },
     // getItems: function() {
     //   this.isLoading = true
     //   const api = axios.create()
@@ -131,6 +134,7 @@ export default {
           this.isLoading = false
       }))
     },
+    
     onDelete: function (review_id) {
         if (!confirm('削除してもよろしいですか？')) {
             return
@@ -195,6 +199,14 @@ export default {
     },
     own() {
       return this.$store.state.user
+    },
+    getReviews() {
+      let current = this.currentPage * this.parpage;
+      let start = current - this.parpage;
+      return this.reviews.slice(start, current).reverse();
+    },
+    getPageCount() {
+      return Math.ceil(this.reviews.length / this.parpage)
     }
   }
 }

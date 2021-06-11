@@ -13,6 +13,8 @@ import VueRouter from 'vue-router';
 Vue.use(VueRouter);
 import Vuex from 'vuex';
 Vue.use(Vuex);
+import Paginate from 'vuejs-paginate'
+Vue.component('paginate', Paginate)
 // Bootstrap-Vue
 window.BootstrapVue = require('bootstrap-vue');
 Vue.use(BootstrapVue);
@@ -42,8 +44,8 @@ import ImageFileUploader from 'vue-mg-image-file-uploader'
 Vue.component('ImageFileUploader', ImageFileUploader)
 import TimePickerSelector from 'vue-mg-time-picker-selector'
 Vue.component('TimePickerSelector', TimePickerSelector)
-import MgPaginate from 'vue-mg-paginate'
-Vue.component('MgPaginate', MgPaginate)
+// import Paginate from 'vuejs-paginate'
+// Vue.component('paginate', Paginate)
 import ToggleSelector from 'vue-mg-toggle-selector'
 Vue.component('ToggleSelector', ToggleSelector)
 import ModalDialog from "vue-mg-modal-dialog";
