@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
@@ -20,7 +21,7 @@ class ItemController extends Controller
     public function index()
     {
         $items = Item::all();
-        return ItemForListResource::collection($items);
+        return ItemForShowResource::collection($items);
     }
 
     /**
@@ -124,10 +125,10 @@ class ItemController extends Controller
         $code = $request->code;
         $name = $request->name;
         $items = Item::when($code, function ($query) use ($code) {
-                return $query->where('code', 'like', '%'.$code.'%');
-            })
+            return $query->where('code', 'like', '%' . $code . '%');
+        })
             ->when($name, function ($query) use ($name) {
-                return $query->where('name', 'like', '%'.$name.'%');
+                return $query->where('name', 'like', '%' . $name . '%');
             })
             ->get();
         return ItemSelectorResource::collection($items);

@@ -18,6 +18,7 @@ class ItemSelector extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'code' => $this->code,
+            'phonetic_name' => $this->phonetic_name,
         ];
     }
 }

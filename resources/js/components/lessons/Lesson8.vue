@@ -20,6 +20,8 @@
                     <div class="d-flex justify-content-start mb-3">
                         <div class="mr-4">
                             <button type="button" class="btn btn-primary" @click="onNext">Leeson8-1へ</button>
+                            <input id="app" v-model="text">
+                            <button type="button" class="btn btn-primary" @click="twoNext">Leeson8-2へ</button>
                         </div>
                     </div>
                 </div>
@@ -46,17 +48,25 @@ export default {
         //
     },
     computed: {
-        //
+        text: {
+            
+        }
     },
     methods: {
         onNext() {
             this.$router.push({ name: 'lesson8-1' })
+            
+        },
+        twoNext() {
+            this.$router.push({ name: 'lesson8-2', params:{text: this.text}})
         },
         onBack() {
             this.$router.push({ name: 'home' })
         }
+
     },
 }
+
 </script>
 
 <style lang="scss" scoped>

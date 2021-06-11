@@ -6,8 +6,9 @@
  */
 
 require('./bootstrap');
-
 window.Vue = require('vue');
+import sanitizeHTML from 'sanitize-html';
+Vue.prototype.$sanitize = sanitizeHTML;
 import VueRouter from 'vue-router';
 Vue.use(VueRouter);
 import Vuex from 'vuex';
@@ -54,6 +55,7 @@ Vue.component('CsvImporter', CsvImporter)
 import VueInputCalculator from "vue-input-calculator";
 Vue.component('VueInputCalculator', VueInputCalculator);
 import ModalSearchMaster from 'vue-mg-modal-search-master';
+import Vue from 'vue';
 Vue.component('ModalSearchMaster', ModalSearchMaster);
 
 /**
@@ -75,12 +77,15 @@ Vue.component('barcode-component', require('./components/commons/BarcodeComponen
 Vue.component('modal-employee-select', require('./components/commons/ModalEmployeeSelect.vue').default);
 Vue.component('select-name', require('./components/commons/SelectName.vue').default);
 Vue.component("number-input", require("./components/commons/NumberInput.vue").default);
+Vue.component('main-map', require('./components/MainMap.vue').default);
+Vue.component('review-create', require('./components/ReviewCreate.vue').default);
 
 const router = new VueRouter({
     mode: 'history',
     routes: [
         // ホーム
-        { name: 'home', path: '/', component: require('./components/HomeComponent.vue').default },
+        { name: 'review', path: '/', component: require('./components/MainMap.vue').default },
+        { name: 'create', path: '/create', component: require('./components/ReviewCreate.vue').default },
         // mock
         // { name: 'mock', path: '/mock', component: require('./components/mocks/MockBarcode.vue').default },
 
@@ -110,10 +115,16 @@ const router = new VueRouter({
         { name: 'lesson5', path: '/lesson5', component: require('./components/lessons/Lesson5.vue').default },
         { name: 'lesson6', path: '/lesson6', component: require('./components/lessons/Lesson6.vue').default },
         { name: 'lesson7', path: '/lesson7', component: require('./components/lessons/Lesson7.vue').default },
-        { name: 'lesson8', path: '/lesson8', component: require('./components/lessons/Lesson8.vue').default },
+        { name: 'lesson8', path: '/lesson8', component: require('./components/lessons/Lesson8.vue').default, props: true },
+        { name: 'lesson8-1', path: '/lesson8-1', component: require('./components/lessons/Lesson8-1.vue').default },
+        { name: 'lesson8-2', path: '/lesson8-2', component: require('./components/lessons/Lesson8-2.vue').default, props: true },
         { name: 'lesson9', path: '/lesson9', component: require('./components/lessons/Lesson9.vue').default },
         { name: 'lesson10', path: '/lesson10', component: require('./components/lessons/Lesson10.vue').default },
 
+        //顧客
+        { name: 'customer', path: '/customer', component: require('./components/customers/Index.vue').default },
+        { name: 'customer.create', path: '/customer/create', component: require('./components/customers/CreateUpdate.vue').default, props: true },
+        { name: 'customer.show', path: '/customer/show/:customer_id', component: require('./components/customers/CreateUpdate.vue').default, props: true },
         // not found
         { path: '*', component: require('./components/commons/NotFoundComponent.vue').default },
     ]

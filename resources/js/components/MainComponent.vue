@@ -1,6 +1,7 @@
 <template>
 <div>
     <transition name="view" mode="out-in">
+        <!--SPA使うのに超重要 -->
         <router-view :key="$route.fullPath"/>
     </transition>
 </div>

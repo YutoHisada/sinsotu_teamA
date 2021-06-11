@@ -2,7 +2,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-12">
-            <div class="card">
+            <div id="app" class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-start mb-3">
                         <div class="mr-auto">
@@ -23,6 +23,10 @@
                             <div class="align-self-center">商品コード：</div>
                             <div class="align-self-center">
                                 <input class="form-control" v-model="searchItemCode">
+                            </div>
+                            <div class="align-self-center">在庫数：</div>
+                            <div class="align-self-center">
+                                <input class="form-control" v-model="searchStockNum">
                             </div>
                         </div>
                     </div>
@@ -72,6 +76,7 @@ export default {
                 { id: 5, item_code: 'ITEM0005', item_name: '商品００００５', stock_num: 500, real_stock_num: 311 },
             ],
             searchItemCode: '',
+            searchStockNum: '',
         }
     },
     mounted () {
@@ -82,8 +87,27 @@ export default {
     },
     computed: {
         filterInventories() {
-            return this.inventories
-        }
+            
+            const inventories = this.inventories.filter(inventory => {
+                console.log(inventory)
+                if(inventory.item_code.indexOf(this.searchItemCode) !== -1) {
+                    
+                    if(inventory.stock_num >= this.searchStockNum) {
+                        return true
+                    }
+                }
+            })
+            // for(var i in this.inventories) {
+            //     var inventory = this.inventories[i];
+
+            //     if(inventory.item_code.indexOf(this.searchItemCode) !== -1) {
+            //         if(inventory.stock_num >= this.searchStockNum) {
+            //             inventories.push(inventory)
+            //         }
+            //     }
+            // }
+            return inventories
+        },
     },
     methods: {
         onBack() {

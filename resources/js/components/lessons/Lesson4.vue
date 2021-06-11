@@ -20,6 +20,7 @@
                     <table class="table table-sm" key="processes">
                         <thead>
                             <tr>
+                                <!--<th class="text-center bg-primary text-white">ID</th>-->
                                 <th class="text-center bg-primary text-white">商品コード</th>
                                 <th class="text-center bg-primary text-white">商品名</th>
                                 <th class="text-center bg-primary text-white">在庫数</th>
@@ -28,24 +29,14 @@
                         </thead>
 
                         <tbody>
-                            <tr class="bg-white">
-                                <td class="text-center align-middle">00001</td>
-                                <td class="text-center align-middle">商品名0001</td>
-                                <td class="text-center align-middle">100</td>
-                                <td class="text-center align-middle">98</td>
+                            <tr v-for="(inventory, index) in inventories" :key=index class="bg-white">
+                                <!--<td class="text-center align-middle">{{ inventory.id }}</td>-->
+                                <td class="text-center align-middle">{{ inventory.item_code }}</td>
+                                <td class="text-center align-middle">{{ inventory.item_name }}</td>
+                                <td class="text-center align-middle">{{ inventory.stock_num }}</td>
+                                <td class="text-center align-middle">{{ inventory.real_stock_num }}</td>
                             </tr>
-                            <tr class="bg-white">
-                                <td class="text-center align-middle">00002</td>
-                                <td class="text-center align-middle">商品名0002</td>
-                                <td class="text-center align-middle">200</td>
-                                <td class="text-center align-middle">198</td>
-                            </tr>
-                            <tr class="bg-white">
-                                <td class="text-center align-middle">00003</td>
-                                <td class="text-center align-middle">商商品名0003</td>
-                                <td class="text-center align-middle">300</td>
-                                <td class="text-center align-middle">298</td>
-                            </tr>
+                            
                         </tbody>
                     </table>
                 </div>

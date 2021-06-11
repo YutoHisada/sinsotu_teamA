@@ -16,7 +16,7 @@ class LessonController extends Controller
      */
     public function index()
     {
-        //
+        return 'テスト表示成功！';
     }
 
     /**

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -26,9 +27,11 @@
             min-height: 100%;
             position: relative;
         }
+
         body {
             margin-bottom: 3rem;
         }
+
         .footer {
             width: 100%;
             display: flex;
@@ -41,14 +44,15 @@
         }
     </style>
 </head>
+
 <body>
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light navbar-laravel">
             <div class="container-fluid">
                 {{-- <a class="navbar-brand" href="{{ url('/') }}">
-                    <div>
-                        <img src="{{ asset('storage/head_logo.jpg') }}" alt="">
-                    </div>
+                <div>
+                    <img src="{{ asset('storage/head_logo.jpg') }}" alt="">
+                </div>
                 </a> --}}
                 <a class="navbar-brand" href="{{ url('/') }}">
                     {{ config('app.name', 'Laravel') }}
@@ -66,25 +70,36 @@
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">
                         <!-- Authentication Links -->
-                        @auth
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }} <span class="caret"></span>
+                        @guest
+                        @if (Route::has('login'))
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('login') }}">{{ __('ログイン') }}</a>
+                        </li>
+                        @endif
+
+                        @if (Route::has('register'))
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('register') }}">{{ __('登録') }}</a>
+                        </li>
+                        @endif
+                        @else
+                        <li class="nav-item dropdown">
+                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                {{ Auth::user()->name }} <span class="caret"></span>
+                            </a>
+
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
+                                                     document.getElementById('logout-form').submit();">
+                                    {{ __('Logout') }}
                                 </a>
 
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}
-                                    </a>
-
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                        @csrf
-                                    </form>
-                                </div>
-                            </li>
-                        @endauth
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                    @csrf
+                                </form>
+                            </div>
+                        </li>
+                        @endguest
                     </ul>
                 </div>
             </div>
@@ -92,9 +107,9 @@
 
         <main class="py-4">
             @auth
-                <main-component />
+            <main-component />
             @else
-                @yield('content')
+            @yield('content')
             @endauth
         </main>
     </div>
@@ -103,4 +118,5 @@
         <small>&copy @php echo date_format(date_create(), 'Y'); @endphp Mountain Gorilla.</small>
     </div>
 </body>
+
 </html>

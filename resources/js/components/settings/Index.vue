@@ -7,6 +7,7 @@
             <div class="d-flex justify-content-center mb-2">
                 <router-link :to="{ name: 'item' }" class="btn btn-primary btn-menu mr-3 mb-3">商品</router-link>
                 <router-link :to="{ name: 'employee' }" class="btn btn-primary btn-menu mr-3 mb-3">従業員</router-link>
+                <router-link :to="{ name: 'customer' }" class="btn btn-primary btn-menu mr-3 mb-3">顧客</router-link>
             </div>
         </div>
 	</div>

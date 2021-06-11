@@ -18,7 +18,7 @@ Route::middleware('auth:api')->get('/user/info', function (Request $request) {
     return new UserResource($request->user());
 });
 Route::middleware(['auth:api'])->group(function () {
-    
+
     // レポート
     Route::get('report', 'API\ReportController@index');
     Route::post('report', 'API\ReportController@store');
@@ -50,5 +50,15 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::get('lesson/selector', 'API\LessonController@index');
     ////
+    //顧客
+    Route::get('customer', 'API\CustomerController@index');
+    Route::post('customer', 'API\CustomerController@store');
+    Route::get('customer/{customer}', 'API\CustomerController@show');
+    Route::put('customer/{customer}', 'API\CustomerController@update');
+    Route::delete('customer/{customer}', 'API\CustomerController@destroy');
+    Route::get('customer/selector', 'API\CustomerController@selector');
 
+    Route::get('review', 'API\ReviewController@index');
+    Route::post('review', 'API\ReviewController@store');
+    Route::delete('review/{review}', 'API\ReviewController@destroy');
 });

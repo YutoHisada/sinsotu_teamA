@@ -14,6 +14,21 @@
                     </div>
                     
                     <div class="quesion-header">電卓を作成してください。</div>
+                    <table id="app">
+                        <tr>
+                            <td colspan="3">
+                                <input type="text" v-model="output">
+                            </td>
+                            <td>
+                               <button value="c" v-on:click="calc('c')">C</button>
+                            </td>
+                        </tr>
+                        <tr v-for="(row,index) in items" :key=index>
+                            <td v-for="(item, index) in row" :key=index>
+                                <button v-on:click="calc(item)">{{ item }}</button>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </div>
         </div>
@@ -28,7 +43,13 @@ export default {
     },
     data () {
         return {
-            //
+            output: '0',
+            items: [
+                ["7", "8", "9", "/"],
+                ["4", "5", "6", "*"],
+                ["1", "2", "3", "-"],
+                ["0", ".", "+", "="],
+            ],
         }
     },
     mounted () {
@@ -41,6 +62,17 @@ export default {
         //
     },
     methods: {
+        calc: function (cmd) {
+            if (cmd === "=") {
+               this.output = eval(this.output)
+            } else if (cmd === "c") {
+                this.output = "0";
+            } else if (this.output === "0") {
+                this.output = cmd
+            } else {
+                this.output += cmd
+            }
+        },
         onBack() {
             this.$router.push({ name: 'home' })
         }

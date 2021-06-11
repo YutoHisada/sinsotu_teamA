@@ -25,7 +25,29 @@
                     </div>
                     
                     // ここにデータを表示
-
+                    <div id="app">
+                        <div>
+                            <table class="table table-sm" key="processes">
+                                <thead>
+                                    <tr>
+                                        <!--<th class="text-center bg-primary text-white">ID</th>-->
+                                        <th class="text-center bg-primary text-white">ID</th>
+                                        <th class="text-center bg-primary text-white">商品名</th>
+                                        <th class="text-center bg-primary text-white">商品コード</th>
+                                        <th class="text-center bg-primary text-white">フリガナ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in items" :key=index class="bg-white">
+                                        <td class="text-center align-middle">{{ item.id }}</td>
+                                        <td class="text-center align-middle">{{ item.name }}</td>
+                                        <td class="text-center align-middle">{{ item.code }}</td>
+                                        <td class="text-center align-middle">{{ item.phonetic_name }}</td>
+                                    </tr>     
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                     <hr>
                     <div class="quesion-header">２．新規テーブル（customers）を作成してそのデータを画面に表示しましょう</div>
                     <p>
@@ -56,14 +78,44 @@
                     </div>
                     
                     // ここにデータを表示
-
+                    <div id="app">
+                        <div>
+                            <table class="table table-sm" key="processes">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center bg-primary text-white">ID</th>
+                                        <th class="text-center bg-primary text-white">顧客コード</th>
+                                        <th class="text-center bg-primary text-white">名前</th>
+                                        <th class="text-center bg-primary text-white">住所</th>
+                                        <th class="text-center bg-primary text-white">アドレス</th>
+                                        <th class="text-center bg-primary text-white">電話番号</th>
+                                        <th class="text-center bg-primary text-white">FAX番号</th>
+                                        <th class="text-center bg-primary text-white">休業日</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(customer, index) in customers" :key=index class="bg-white">
+                                        
+                                        <td class="text-center align-middle">{{ customer.id }}</td>
+                                        <td class="text-center align-middle">{{ customer.code }}</td>
+                                        <td class="text-center align-middle">{{ customer.name }}</td>
+                                        <td class="text-center align-middle">{{ customer.postal_code }}</td>
+                                        <td class="text-center align-middle">{{ customer.address }}</td>
+                                        <td class="text-center align-middle">{{ customer.tel }}</td>
+                                        <td class="text-center align-middle">{{ customer.fax }}</td>
+                                        <td class="text-center align-middle">{{ customer.closing_day }}</td>
+                                    </tr>     
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 </template>
-
 <script>
 export default {
     props: {
@@ -71,8 +123,9 @@ export default {
     },
     data () {
         return {
-            results: null,
             items: null,
+            customers: null,
+            test: null,
         }
     },
     mounted () {
@@ -90,8 +143,15 @@ export default {
             // routes/api.phpにルーティングを設定する
             // Route::get('lesson/selector', 'API\LessonController@index');
             // ↑これがControllerとの紐づけ定義
-            const {data} = await axios.get('/api/lesson/selector')
-            this.results = data
+            const data = await axios.get('/api/item')
+            this.items = data.data
+            const data1 = await axios.get('/api/customer')
+            console.log(data1)
+            this.customers = data1.data
+            // const data2 = await axios.get('/api/lesson/selector')
+            // this.test = data2.data
+            
+
         },
         onBack() {
             this.$router.push({ name: 'home' })
