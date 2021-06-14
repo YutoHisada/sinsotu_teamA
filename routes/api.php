@@ -32,13 +32,13 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('report/line/selector', 'API\ReportController@lineSelector');
 
     // 従業員
-    Route::get('employee', 'API\EmployeeController@index');
-    Route::post('employee', 'API\EmployeeController@store');
-    Route::get('employee/{employee}', 'API\EmployeeController@show');
-    Route::put('employee/{employee}', 'API\EmployeeController@update');
-    Route::delete('employee/{employee}', 'API\EmployeeController@destroy');
-    Route::get('employee/selector', 'API\EmployeeController@selector');
-    Route::get('employee/full_name', 'API\EmployeeController@fullname');
+    Route::get('user', 'API\UserController@index');
+    Route::post('user', 'API\UserController@store');
+    Route::get('user/{user}', 'API\UserController@show');
+    Route::put('user/{user}', 'API\UserController@update');
+    Route::delete('user/{user}', 'API\UserController@destroy');
+    // Route::get('employee/selector', 'API\EmployeeController@selector');
+    // Route::get('employee/full_name', 'API\EmployeeController@fullname');
 
     // 商品
     Route::get('item', 'API\ItemController@index');
@@ -57,6 +57,11 @@ Route::middleware(['auth:api'])->group(function () {
     Route::put('customer/{customer}', 'API\CustomerController@update');
     Route::delete('customer/{customer}', 'API\CustomerController@destroy');
     Route::get('customer/selector', 'API\CustomerController@selector');
+
+    Route::get('user', 'API\UserController@index');
+    Route::post('user', 'API\UserController@store');
+    Route::delete('user/{user}', 'API\UserController@destroy');
+
 
     Route::get('review', 'API\ReviewController@index');
     Route::post('review', 'API\ReviewController@store');

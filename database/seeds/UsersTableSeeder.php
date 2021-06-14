@@ -15,6 +15,8 @@ class UsersTableSeeder extends Seeder
         $model = new User;
         $model->name = 'mg-komatsuk';
         $model->password = bcrypt('9705');
+        $model->is_admin = true;
+        $model->is_leader = false;
         $model->save();
         $model = new User;
         $model->name = 'user02';

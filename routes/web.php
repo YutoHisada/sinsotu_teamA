@@ -10,12 +10,12 @@
 | contains the "web" middleware group. Now create something great!
 // |
 // */
-Route::get('/', function () {
-    return view('map');
-    // return view('map');
-})->middleware('auth');
+// Route::get('/', function () {
+//     return view('map');
+//     // return view('map');
+// })->middleware('auth');
 // Route::view('/', 'map')->middleware('auth');
-Auth::routes();
+// Auth::routes();
 
 // Route::post('register', 'Auth\RegisterController@register');
 Route::get('login', 'Auth\LoginController@showLoginForm')->name('login');

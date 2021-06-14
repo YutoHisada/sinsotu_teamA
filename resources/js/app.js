@@ -79,18 +79,21 @@ Vue.component('barcode-component', require('./components/commons/BarcodeComponen
 Vue.component('modal-employee-select', require('./components/commons/ModalEmployeeSelect.vue').default);
 Vue.component('select-name', require('./components/commons/SelectName.vue').default);
 Vue.component("number-input", require("./components/commons/NumberInput.vue").default);
-Vue.component('main-map', require('./components/MainMap.vue').default);
+Vue.component('main-menu', require('./components/MainMenu.vue').default);
 Vue.component('review-create', require('./components/ReviewCreate.vue').default);
+Vue.component('main-map', require('./components/MainMap.vue').default);
+
 
 const router = new VueRouter({
     mode: 'history',
     routes: [
-        // ホーム
-        { name: 'review', path: '/', component: require('./components/MainMap.vue').default },
+        //　課題
+        { name: 'menu', path: '/', component: require('./components/MainMenu.vue').default },
+        { name: 'map', path: '/map', component: require('./components/MainMap.vue').default },
         { name: 'create', path: '/create', component: require('./components/ReviewCreate.vue').default },
         // mock
         // { name: 'mock', path: '/mock', component: require('./components/mocks/MockBarcode.vue').default },
-
+        // { name: 'home', path: '/', component: require('./components/HomeComponent.vue').default },
         // 包装ライン日報
         { name: 'report', path: '/report', component: require('./components/reports/Index.vue').default },
         { name: 'report.create', path: '/report/create', component: require('./components/reports/CreateUpdate.vue').default },
@@ -100,9 +103,9 @@ const router = new VueRouter({
         { name: 'setting', path: '/setting', component: require('./components/settings/Index.vue').default },
 
         // 従業員
-        { name: 'employee', path: '/employee', component: require('./components/employees/Index.vue').default },
-        { name: 'employee.create', path: '/employee/create', component: require('./components/employees/CreateUpdate.vue').default },
-        { name: 'employee.show', path: '/employee/show/:employee_id', component: require('./components/employees/CreateUpdate.vue').default, props: true },
+        { name: 'user', path: '/user', component: require('./components/users/Index.vue').default },
+        { name: 'user.create', path: '/user/create', component: require('./components/users/CreateUpdate.vue').default },
+        { name: 'user.show', path: '/user/show/:user_id', component: require('./components/users/CreateUpdate.vue').default, props: true },
 
         // 商品
         { name: 'item', path: '/item', component: require('./components/items/Index.vue').default },
@@ -132,6 +135,7 @@ const router = new VueRouter({
     ]
 });
 
+
 const store = new Vuex.Store({
     state: {
         user: '',
@@ -141,21 +145,37 @@ const store = new Vuex.Store({
         },
     },
     mutations: {
-        getUser (state, payload) {
-            axios.get('/api/user/info').then(res => {
-                // this.$store.commit('setLoginUser', res.data)
-                state.user = res.data
-            }).catch(error => {
-                console.log(error)
-            });
+        async getUser (state, payload) {
+            const res = await axios.get('/api/user/info')
+            state.user = res.data
+            console.log('getUser')
         },
     },
     actions: {
-        getUser (context) {
-          context.commit('getUser')
+        async getUser (context) {
+        //   context.commit('getUser')
+          const res = await axios.get('/api/user/info')
+          this.state.user = res.data
+          console.log("getUser2")
         }
     },
     plugins: [createPersistedState()],
+});
+
+ router.beforeEach(async(to, from, next) => {
+    if(to.path == '/login') {
+        next()
+        return
+    }
+    await store.dispatch('getUser')
+    if (store.state.user.is_admin) {
+        next()
+    } else if(to.path != '/map') {
+        router.push({ name: 'map' })
+        
+    }
+    next()
+
 });
 
 /**
