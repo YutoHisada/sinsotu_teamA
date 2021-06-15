@@ -52,7 +52,13 @@ export default {
         }
     },
     created () {
-    //   this.getItems()  
+    },
+    mounted() {
+        var str = this.$route.params.restname
+        // var result = str.replace('(', '\(')
+        // var result2 = result.replace(')', '\)')
+
+        return this.review.name = this.$route.params.restname
     },
     watch: {
         //

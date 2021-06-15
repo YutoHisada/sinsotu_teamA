@@ -7,6 +7,9 @@
         <div class="col-md-3">
           <input type="text" v-model="geo" style="width: 200px">
           <button v-on:click="geocoder"><i class="fas fa-search"></i></button>
+          <div class="align-self-center">
+            <button type="button" class="btn btn-dark" @click="onBack">戻る</button>
+          </div>
           
           <div class="form-check">
             <input type="radio" id="one" value="岡崎橋ビル" v-model="place">
@@ -250,33 +253,16 @@ export default {
     async getLatLng() {
       await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=${this.myAPI}&location=${this.lat},${this.lng}&radius=${this.radius}&type=${this.type}&keyword=${this.keyword}&language=ja`).then(result => {
 
-        var dataCount = (Object.keys(result.data.results).length);
-        var latarray2
-        var lngarray2
-        var restname2
+        this.dataCount = (Object.keys(result.data.results).length);
 
-        for(let i=0; i< dataCount; i++)
+        for(let i=0; i< this.dataCount; i++)
         {
-          latarray2 = result.data.results[i].geometry.location.lat;
-          this.latarray.push(latarray2)
-          lngarray2 = result.data.results[i].geometry.location.lng;
-          this.lngarray.push(lngarray2)
-          restname2 = result.data.results[i].name;
-          this.restname.push(restname2)
+          this.latarray.push(result.data.results[i].geometry.location.lat)
+          this.lngarray.push(result.data.results[i].geometry.location.lng)
+          this.restname.push(result.data.results[i].name)
 
           //営業時間がある場合true,ない場合falseを返す
-          if(result.data.results[i].opening_hours != null)
-          {
-            this.BOOL[i] = true
-          }
-          else if(result.data.results[i].opening_hours == null)
-          {
-            this.BOOL[i] = false
-          }
-          //営業しているかを判断営業していない場合、不明を返す
-          
-          if(this.BOOL[i] == true)
-          {
+          if(result.data.results[i].opening_hours != null && result.data.results[i].opening_hours.open_now != null) {
             if(result.data.results[i].opening_hours.open_now == true)
             {
               this.eigyou[i] = "営業しています"
@@ -285,13 +271,14 @@ export default {
             {
               this.eigyou[i] = "本日の営業は終了しました"
             }
+            //営業しているかを判断営業していない場合、不明を返す
           }
           else 
           {
             this.eigyou[i] = "営業情報を取得できませんでした"
           }
         }
-        this.dataCount += dataCount;
+        // this.dataCount += dataCount;
       })
     },
     async initializeMap() {
@@ -341,9 +328,14 @@ export default {
             //   url : 'images/orange.png',
             // },
           });
-
-        var msg =this.restname[i]+ '<br/><a href="https://www.google.com/maps/search/?api=1&query='+this.restname[i]+'" target="_blank" >Googleマップで見る</a><br/>' + this.eigyou[i] + '<router-link to="/create" class="btn btn-primary" @click="onResume(review)">投稿</router-link>'　//営業しているかのメッセージを消去する場合、this.eigyou[i]を削除
-        this.attachMessage(markers, msg ); 
+        var iw = new google.maps.InfoWindow({
+          position: new this.google.maps.LatLng(this.latarray[i], this.lngarray[i]),
+          content: "testtest"
+        })
+        // var msg =this.restname[i]+ '<br/><a href="https://www.google.com/maps/search/?api=1&query='+this.restname[i]+'" target="_blank" >Googleマップで見る</a><br/>' + this.eigyou[i] + 　//営業しているかのメッセージを消去する場合、this.eigyou[i]を削除
+        var msg =`${this.restname[i]}<br/><a href="https://www.google.com/maps/search/?api=1&query=${this.restname[i]}"target="_blank" >Googleマップで見る</a><br/>${this.eigyou[i]}` 　//営業しているかのメッセージを消去する場合、this.eigyou[i]を削除
+        // this.attachMessage(markers, msg ); 
+        this.attachMessage(markers, msg, this.restname[i], i);
         }
       }
       // フリー検索の時のマーカー
@@ -426,10 +418,10 @@ export default {
       
       this.initializeMap()
     },
-    attachMessage(marker, msg) {
+    attachMessage(marker, msg, restname) {
       google.maps.event.addListener(marker, 'click', function(event) {
         new google.maps.InfoWindow({
-          content: msg
+          content: msg + `<br><button onclick='location.href="/create/${restname}"' value=''>Google</button>`
         }).open(marker.getMap(), marker);
       });
     },
@@ -470,6 +462,9 @@ export default {
     },
     onResume(review) {
       this.$router.push({ name: 'create', params: { ReviewId: Review.id } })
+    },
+    onBack: function () {
+      this.$router.go(-1)
     },
     // onCreate: function() {
     //     let _this = this

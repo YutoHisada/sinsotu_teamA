@@ -90,7 +90,7 @@ const router = new VueRouter({
         //　課題
         { name: 'menu', path: '/', component: require('./components/MainMenu.vue').default },
         { name: 'map', path: '/map', component: require('./components/MainMap.vue').default },
-        { name: 'create', path: '/create', component: require('./components/ReviewCreate.vue').default },
+        { name: 'create', path: '/create/:restname', component: require('./components/ReviewCreate.vue').default },
         // mock
         // { name: 'mock', path: '/mock', component: require('./components/mocks/MockBarcode.vue').default },
         // { name: 'home', path: '/', component: require('./components/HomeComponent.vue').default },
