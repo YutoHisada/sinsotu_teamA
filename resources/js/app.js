@@ -82,6 +82,9 @@ Vue.component("number-input", require("./components/commons/NumberInput.vue").de
 Vue.component('main-menu', require('./components/MainMenu.vue').default);
 Vue.component('review-create', require('./components/ReviewCreate.vue').default);
 Vue.component('main-map', require('./components/MainMap.vue').default);
+Vue.component('main-map2', require('./components/MainMap2.vue').default);
+Vue.component('main-map3', require('./components/MainMap3.vue').default);
+Vue.component('main-map4', require('./components/MainMap4.vue').default);
 
 
 const router = new VueRouter({
@@ -89,8 +92,10 @@ const router = new VueRouter({
     routes: [
         //　課題
         { name: 'menu', path: '/', component: require('./components/MainMenu.vue').default },
-        { name: 'map', path: '/map', component: require('./components/MainMap.vue').default },
+        // { name: 'map', path: '/map', component: require('./components/MainMap.vue').default },
+        { name: 'map', path: '/map', component: require('./components/testLib.vue').default },
         { name: 'create', path: '/create/:restname', component: require('./components/ReviewCreate.vue').default },
+        { name: 'create', path: '/create', component: require('./components/ReviewCreate.vue').default },
         // mock
         // { name: 'mock', path: '/mock', component: require('./components/mocks/MockBarcode.vue').default },
         // { name: 'home', path: '/', component: require('./components/HomeComponent.vue').default },
@@ -162,7 +167,7 @@ const store = new Vuex.Store({
     plugins: [createPersistedState()],
 });
 
- router.beforeEach(async(to, from, next) => {
+router.beforeEach(async(to, from, next) => {
     if(to.path == '/login') {
         next()
         return
@@ -170,12 +175,13 @@ const store = new Vuex.Store({
     await store.dispatch('getUser')
     if (store.state.user.is_admin) {
         next()
-    } else if(to.path != '/map') {
-        router.push({ name: 'map' })
-        
+    } else {
+        // 一般ユーザ
+        if (to.path == '/') {
+            router.push({ name: 'map' })
+        }
     }
     next()
-
 });
 
 /**
@@ -183,6 +189,15 @@ const store = new Vuex.Store({
  * the page. Then, you may begin adding components to this application
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
+ import * as VueGoogleMaps from 'vue2-google-maps'
+ Vue.use(VueGoogleMaps, {
+    load: {
+        key: 'AIzaSyAxisqbDtjxsblijsRF4isATj0EOFkG5bM',
+        libraries: 'places',
+        region: 'JP',
+    language: 'ja'
+    }
+})
 
 const app = new Vue({
     el: '#app',

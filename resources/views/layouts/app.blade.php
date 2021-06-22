@@ -22,6 +22,7 @@
 
     <!-- Styles -->
     <link href="{{ asset(mix('css/app.css')) }}" rel="stylesheet">
+
     <style>
         html {
             min-height: 100%;
@@ -117,6 +118,8 @@
     <div class="footer">
         <small>&copy @php echo date_format(date_create(), 'Y'); @endphp Mountain Gorilla.</small>
     </div>
+
 </body>
+
 
 </html>

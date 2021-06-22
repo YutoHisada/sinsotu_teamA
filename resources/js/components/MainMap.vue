@@ -1,16 +1,16 @@
 <template>
-<div class="container">
+  <div class="container">
     <!--別のvueを作る-->
     mainmap4
-      <div class="row">
-        <div class="map col-md-5" ref="googleMap" style="float: left" />
+    <div class="row">
+      <div class="map col-md-5" ref="googleMap" style="float: left" />
         <div class="col-md-3">
           <input type="text" v-model="geo" style="width: 200px">
           <button v-on:click="geocoder"><i class="fas fa-search"></i></button>
           <div class="align-self-center">
             <button type="button" class="btn btn-dark" @click="onBack">戻る</button>
           </div>
-          
+        
           <div class="form-check">
             <input type="radio" id="one" value="岡崎橋ビル" v-model="place">
             <label for="one">岡崎橋ビル</label>
@@ -54,52 +54,77 @@
           <br>
           <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" v-model="circleMode">
-            <label class="form-check-label" for="flexSwitchCheckDefault">円描画</label>
-            <span v-if="circleMode"> ON</span>
-            <span v-else> OFF</span>
+            <label v-if="circleMode" for="flexSwitchCheckDefault">円描画ON</label>
+            <label v-else for="flexSwitchCheckDefault">円描画OFF</label>
           </div>
           <div class="mr-auto">
-            <span class="span-header">レビュー一覧</span>　　　
+            <div v-if="markerCount == 0"><span class="span-header">全てのレビュー</span></div>
+            <div v-else><span class="span-header">マーカーにあるレビュー</span></div>
           </div>
+          <!-- <div>
+            {{ reviews }}
+          </div> -->
           <router-link 
             to="/create" 
             class="btn btn-primary"
             @click="onResume(review)"
-          >投稿</router-link>　
-                       <table class="table table-sm" key="processes">
-                        <thead>
-                            <tr>
-                                <!--<th class="text-center bg-primary text-white">ID</th>-->
-                                <th class="text-center bg-primary text-white">投稿者</th>
-                                <th class="text-center bg-primary text-white">店名</th>
-                                <th class="text-center bg-primary text-white">コメント</th>
-                                <th class="text-center bg-primary text-white">削除</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            <tr v-for="(review, index) in getReviews" :key=index class="bg-white">
-                                <!--<td class="text-center align-middle">{{ inventory.id }}</td>-->
-                                <td class="text-center align-middle">{{ review.user_name }}</td>
-                                <td class="text-center align-middle">{{ review.name }}</td>
-                                <td class="text-center align-middle" style="white-space: pre;">{{ review.comment }}</td>
-                                <td><button type="button" class="btn btn-danger" v-show="own.name === review.user_name" @click="onDelete(review.id)">削除</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <paginate
-                      :page-count="getPageCount"
-                      :page-range="10"
-                      :margin-pages="2"
-                      :click-handler="clickCallback"
-                      :prev-text="'＜'"
-                      :next-text="'＞'"
-                      :container-class="'pagination'"
-                      :page-class="'page-item'">
-                    </paginate>
-        </div>
+            >投稿
+          </router-link>　
+          <table class="table table-sm" key="processes">
+            <div v-if="markerCount == 0">
+              <thead>
+                <tr>
+                  <!--<th class="text-center bg-primary text-white">ID</th>-->
+                  <th class="text-center bg-primary text-white">投稿者</th>
+                  <th class="text-center bg-primary text-white">店名</th>
+                  <th class="text-center bg-primary text-white">コメント</th>
+                  <th class="text-center bg-primary text-white">削除</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(review, index) in reviews" :key=index class="bg-white">
+                  <!--<td class="text-center align-middle">{{ inventory.id }}</td>-->
+                  <td class="text-center align-middle">{{ review.user_name }}</td>
+                  <td class="text-center align-middle">{{ review.name }}</td>
+                  <td class="text-center align-middle" style="white-space: pre;">{{ review.comment }}</td>
+                  <td><button type="button" class="btn btn-danger" v-show="own.name === review.user_name" @click="onDelete(review.id)">削除</button></td>
+                </tr>
+              </tbody>
+            </div>
+            <div v-else>
+              <thead>
+                <tr>
+                  <!--<th class="text-center bg-primary text-white">ID</th>-->
+                  <th class="text-center bg-primary text-white">投稿者</th>
+                  <th class="text-center bg-primary text-white">店名</th>
+                  <th class="text-center bg-primary text-white">コメント</th>
+                  <th class="text-center bg-primary text-white">削除</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(review, index) in reviewsFilter" :key=index class="bg-white">
+                  <!--<td class="text-center align-middle">{{ inventory.id }}</td>-->
+                  <td class="text-center align-middle">{{ review.user_name }}</td>
+                  <td class="text-center align-middle">{{ review.name }}</td>
+                  <td class="text-center align-middle" style="white-space: pre;">{{ review.comment }}</td>
+                  <td><button type="button" class="btn btn-danger" v-show="own.name === review.user_name" @click="onDelete(review.id)">削除</button></td>
+                </tr>
+              </tbody>
+            </div>       
+          </table>
+          <paginate
+            :page-count="getPageCount"
+            :page-range="10"
+            :margin-pages="2"
+            :click-handler="clickCallback"
+            :prev-text="'＜'"
+            :next-text="'＞'"
+            :container-class="'pagination'"
+            :page-class="'page-item'">
+          </paginate>
       </div>
     </div>
+  </div>
 </template>
 
 <script>
@@ -110,7 +135,8 @@ export default {
   data() {
     return {
       reviews: [],
-      myAPI: 'AIzaSyDoT7ZAEG-K-twxebevNoXlOXY6P7v69GA',
+      reviewsFilter: [],
+      myAPI: 'AIzaSyAxisqbDtjxsblijsRF4isATj0EOFkG5bM',
       map: null,
       radius: 0,
       geo: '',
@@ -124,6 +150,7 @@ export default {
       pagenate: ['paginate-log'],
       place: '岡崎橋ビル', 
       dataCount: 0,
+      markerCount: 0,
       latarray: [],
       lngarray: [],
       restname: [],
@@ -141,6 +168,13 @@ export default {
       currentPage: 1,
       isLoading: false,
       fullPage: false,
+      currentInfoWindow: null,
+
+      placeID:[], //詳細な情報を取得するためのID
+      hoga:[],
+      open_Hour:'', //営業時間
+      pson:[], //placeで取得したjson
+      hohoho:'', //json確認要変数　検証終了後削除
       
       mapConfig: {
         // 地図の中心地点
@@ -231,6 +265,7 @@ export default {
       this.latarray = []
       this.lngarray = []
       this.restname = []
+      this.placeID = []
 
       if(this.genres.length > 0)
       {
@@ -253,36 +288,37 @@ export default {
     async getLatLng() {
       await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=${this.myAPI}&location=${this.lat},${this.lng}&radius=${this.radius}&type=${this.type}&keyword=${this.keyword}&language=ja`).then(result => {
 
-        this.dataCount = (Object.keys(result.data.results).length);
+        var dataCount = (Object.keys(result.data.results).length);
 
-        for(let i=0; i< this.dataCount; i++)
+        for(let i=0; i< dataCount; i++)
         {
           this.latarray.push(result.data.results[i].geometry.location.lat)
           this.lngarray.push(result.data.results[i].geometry.location.lng)
           this.restname.push(result.data.results[i].name)
+          this.placeID.push(result.data.results[i].place_id)
 
           //営業時間がある場合true,ない場合falseを返す
           if(result.data.results[i].opening_hours != null && result.data.results[i].opening_hours.open_now != null) {
             if(result.data.results[i].opening_hours.open_now == true)
             {
-              this.eigyou[i] = "営業しています"
+              this.eigyou[i] = "<br>営業しています"
             }
             else
             {
-              this.eigyou[i] = "本日の営業は終了しました"
+              this.eigyou[i] = "<br>本日の営業は終了しました"
             }
             //営業しているかを判断営業していない場合、不明を返す
           }
           else 
           {
-            this.eigyou[i] = "営業情報を取得できませんでした"
+            this.eigyou[i] = ""
           }
         }
-        // this.dataCount += dataCount;
+        this.dataCount += dataCount;
       })
     },
     async initializeMap() {
-       this.mapConfig.center.lat = this.lat;
+      this.mapConfig.center.lat = this.lat;
       this.mapConfig.center.lng = this.lng;
       this.map = new this.google.maps.Map(this.$refs.googleMap, this.mapConfig);
       
@@ -315,10 +351,12 @@ export default {
     //   )
     // },
     async createMarker() {
-      // ジャンル検索の時のマーカー
-      if(this.genres.length > 0) {
-        for(var i = 0;i < this.dataCount;i++)
-        {
+      this.markerCount = 0
+
+      for(var i = 0;i < this.dataCount;i++) {
+        this.markerCount++
+        // ジャンル検索の時のマーカー
+        if(this.genres.length > 0) {
           var markers = new google.maps.Marker({
             map: this.map,
             position: new this.google.maps.LatLng(this.latarray[i], this.lngarray[i]),
@@ -327,32 +365,89 @@ export default {
             // icon: {
             //   url : 'images/orange.png',
             // },
-          });
-        var iw = new google.maps.InfoWindow({
-          position: new this.google.maps.LatLng(this.latarray[i], this.lngarray[i]),
-          content: "testtest"
-        })
-        // var msg =this.restname[i]+ '<br/><a href="https://www.google.com/maps/search/?api=1&query='+this.restname[i]+'" target="_blank" >Googleマップで見る</a><br/>' + this.eigyou[i] + 　//営業しているかのメッセージを消去する場合、this.eigyou[i]を削除
-        var msg =`${this.restname[i]}<br/><a href="https://www.google.com/maps/search/?api=1&query=${this.restname[i]}"target="_blank" >Googleマップで見る</a><br/>${this.eigyou[i]}` 　//営業しているかのメッセージを消去する場合、this.eigyou[i]を削除
-        // this.attachMessage(markers, msg ); 
-        this.attachMessage(markers, msg, this.restname[i], i);
+          })
         }
-      }
-      // フリー検索の時のマーカー
-      else {
-        for(var i = 0;i < this.dataCount;i++)
-        {
+        else {
           var markers = new google.maps.Marker({
             map: this.map,
             position: new this.google.maps.LatLng(this.latarray[i], this.lngarray[i]),
             animation: google.maps.Animation.DROP, //アニメーション　BOUNCE:常に跳ねる　DROP:設置する時に降ってくる
-
-          });
-
-          var msg =this.restname[i]+ '<br/><a href="https://www.google.com/maps/search/?api=1&query='+this.restname[i]+'" target="_blank" >Googleマップで見る</a><br/>' + this.eigyou[i]　//営業しているかのメッセージを消去する場合、this.eigyou[i]を削除
-          this.attachMessage(markers, msg ); 
+          })
         }
+
+        var msg =`${this.restname[i]}<br/><a href="https://www.google.com/maps/search/?api=1&query=${this.restname[i]}"target="_blank" >Googleマップで見る</a>${this.eigyou[i]}` 　//営業しているかのメッセージを消去する場合、this.eigyou[i]を削除
+        this.attachMessage(markers, msg, this.restname[i], this.placeID[i]); 
       }
+      
+      // 口コミ絞り込み処理
+      var hoge = []
+      this.reviewsFilter = this.reviews
+
+      this.reviewsFilter.forEach(value => {
+        this.restname.forEach(element => {
+          if(value.name == element){
+            hoge.push(value)
+          }
+        })
+      })
+      this.reviewsFilter = hoge
+      this.getReviewsFunc()
+    },
+
+    async getHour(pID) {  //検証する場合、引数に店の名前(=restname)を入れる 
+
+     //曜日の取得およびJS形式からGP形式へ変換
+     var date = new Date()
+     var dayOfWeek = date.getDay()
+     var dayOfWeekStr = [ "月", "火", "水", "木", "金", "土", "日" ][dayOfWeek] //検証用
+     if(dayOfWeek == 0)
+       {
+         dayOfWeek += 6
+       }
+       else
+       {
+         dayOfWeek --
+       }
+
+      //jsonを取得する
+      // const pson = await axios.get(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${pID}&key=${this.myAPI}&fields=opening_hours,business_status&language=ja`)
+      // this.pson = pson
+       //console.log(this.pson)  
+
+       await axios.get(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${pID}&key=${this.myAPI}&fields=opening_hours,business_status&language=ja`).then(Result => { 
+        //dataの中のresultと被るので大元のresultをResultへ変更
+        //一週間は7日間
+        let oneWeek = 7
+        //営業時間を表示していない店もあるため、その対応をしないといけない 
+      var plBool = false
+      if( Result.data.result.opening_hours != null)
+       {
+         plBool = true
+         console.log("true")
+       }
+       else if( Result.data.result.opening_hours == null )
+       {
+         plBool = false
+         console.log("false")
+       }
+       else
+       {
+         plBool = false
+         console.log("error")
+       }
+
+      if( plBool == true ){
+          this.hogs2 = Result.data.result.opening_hours.weekday_text[dayOfWeek] 
+         }
+      else if( plBool == false )
+       {
+         this.hogs2 = "営業時間を取得できませんでした"
+       }
+       
+       this.open_Hour = this.hogs2
+       console.log(this.open_Hour)
+      })
+        // console.log(restName)      
     },
 
     search() {
@@ -418,47 +513,87 @@ export default {
       
       this.initializeMap()
     },
-    attachMessage(marker, msg, restname) {
-      google.maps.event.addListener(marker, 'click', function(event) {
-        new google.maps.InfoWindow({
-          content: msg + `<br><button onclick='location.href="/create/${restname}"' value=''>Google</button>`
-        }).open(marker.getMap(), marker);
-      });
+    attachMessage(marker, msg, restname, placeID) {
+      // 下のfunctionの中でthisを使う場合求める参照先のthisを代入して固定する
+      var self = this
+
+      google.maps.event.addListener(marker, 'click', async function() {
+        console.log(placeID)
+        await self.getHour(placeID)
+
+        var InfoWindow = new google.maps.InfoWindow({
+          content: msg + `<br>${self.open_Hour}<br><button onclick='location.href="/create/${restname}"' value=''>レビューを投稿</button>`
+        })
+
+        if(self.currentInfoWindow) {
+          self.currentInfoWindow.close()
+        }
+
+        InfoWindow.open(marker.getMap(), marker) 
+        self.currentInfoWindow = InfoWindow
+        
+        return InfoWindow
+      })
+    },
+    getReviewsFunc() {
+      let current = this.currentPage * this.parpage;
+      let start = current - this.parpage;
+
+      
+      // this.reviews = this.reviews.filter(value => {
+      //   var hoge = []
+      //   this.restname.forEach(element => {
+      //     if(value.name == element) {
+      //     hoge.push = value
+      //   }
+      //   })
+      // })
+      // this.reviews = hoge
+      // console.log(this.restname)
+      // console.log(this.reviews)
+      
+      if(this.markerCount == 0) {
+        return this.reviews.slice(start, current).reverse();
+      }
+      else {
+        return this.reviewsFilter.slice(start, current).reverse();
+      }
+      
     },
     getItems: function () {
       this.isLoading = true;
       const api = axios.create()
       axios.all([
-          api.get('/api/review', {
-            params: {
-              own_user_name: this.own_user_name,
-              offset: this.offset,
-              limit: this.itemsPerPage,
-            },
-          }),
+        api.get('/api/review', {
+          params: {
+            own_user_name: this.own_user_name,
+            offset: this.offset,
+            limit: this.itemsPerPage,
+          },
+        }),
       ]).then(axios.spread((res1, res2, res3, res4) => {
-          this.reviews = res1.data
-          
-          this.isLoading = false
+        this.reviews = res1.data
+        
+        this.isLoading = false
       }))
     },
     
     onDelete: function (review_id) {
-        if (!confirm('削除してもよろしいですか？')) {
-            return
-        }
-        let _this = this
-        axios.delete('/api/review/'+ review_id)
-        .then(function (resp) {
-            alert('削除しました。')
-            _this.$router.go(0)
-        })
-        .catch(function (resp) {
-            console.log(resp)
-        })
-        .finally(function () {
-            //
-        })
+      if (!confirm('削除してもよろしいですか？')) {
+        return
+      }
+      let _this = this
+      axios.delete('/api/review/'+ review_id)
+      .then(function (resp) {
+        alert('削除しました。')
+        _this.$router.go(0)
+      })
+      .catch(function (resp) {
+        console.log(resp)
+      })
+      .finally(function () {
+        //
+      })
     },
     onResume(review) {
       this.$router.push({ name: 'create', params: { ReviewId: Review.id } })
@@ -487,54 +622,103 @@ export default {
     // },
   },
   watch: {
-      place: async function(){
-          if(this.place == '岡崎橋ビル')
-          {
-              this.lat = 34.682910319991365
-              this.lng = 135.4893996106105
-              // マップ再読み込み
-              // this.initializeMap();
-          }
-          else
-          {
-              this.lat = 34.67981481380863
-              this.lng = 135.49274708362623
-              // マップ再読み込み
-              // this.initializeMap();
-          }
+    place: async function(){
+      if(this.place == '岡崎橋ビル')
+      {
+        this.lat = 34.682910319991365
+        this.lng = 135.4893996106105
+        // マップ再読み込み
+        // this.initializeMap();
+      }
+      else
+      {
+        this.lat = 34.67981481380863
+        this.lng = 135.49274708362623
+        // マップ再読み込み
+        // this.initializeMap();
+      }
 
-          await this.main()
-      },
-      sliderNum: async function() {
-        this.radius = this.sliderNum*this.searchRange
+      if(this.genres.length > 0 || this.genreText != null) {
         await this.main()
-      },
-      genres: async function(){
-      this.main()
+      }
+      else {
+        await this.initializeMap()
+      }
+        
+    },
+    sliderNum: async function() {
+      this.radius = this.sliderNum*this.searchRange
+
+      switch(this.sliderNum) {
+        case '1':
+          this.mapConfig.zoom = 16.5
+          break
+        case '2':
+          this.mapConfig.zoom = 15.5
+          break
+        case '3':
+          this.mapConfig.zoom = 15
+          break
+        case '4':
+          this.mapConfig.zoom = 14.6
+          break
+        case '5':
+          this.mapConfig.zoom = 14.28
+          break
+        default:
+          this.mapConfig.zoom = 15
+      }
+
+      if(this.genres.length > 0 || this.genreText != null) {
+        await this.main()
+      }
+      else {
+        await this.initializeMap()
+      }
+    },
+    genres: async function(){
+      this.getReviewsFunc()
+
+      if(this.genres.length > 0) {
+        this.main()
+      }
+      else {
+        this.markerCount = 0
+        this.getReviewsFunc()
+        this.initializeMap()
+      }
     },
     genreText: async function(){
       document.getElementById("search").disabled = false
     },
     circleMode: async function(){
-      
-      this.initializeMap()
-      this.createMarker()
-    }
+      if(this.genres.length > 0 || this.genreText != null) {
+        await this.main()
+      }
+      else {
+        await this.initializeMap()
+      }
+    },
   },
   computed: {
     sortReviews() {
-      return this.reviews.slice().reverse();
+      if(this.markerCount == 0) {
+        return this.reviews.slice().reverse();
+      }
+      else {
+        return this.reviewsFilter.slice().reverse();
+      }
     },
     own() {
       return this.$store.state.user
     },
-    getReviews() {
-      let current = this.currentPage * this.parpage;
-      let start = current - this.parpage;
-      return this.reviews.slice(start, current).reverse();
-    },
     getPageCount() {
-      return Math.ceil(this.reviews.length / this.parpage)
+      if(this.markerCount == 0) {
+        return Math.ceil(this.reviews.length / this.parpage)
+      }
+      else {
+        return Math.ceil(this.reviewsFilter.length / this.parpage)
+      }
     }
   }
 }
