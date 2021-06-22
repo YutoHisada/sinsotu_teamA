@@ -29,7 +29,7 @@ export default {
   },
   async mounted() {
     // 現在地の取得
-    if (navigator.geolocation) {
+    if (false) {
       navigator.geolocation.getCurrentPosition(
         function(position){
           let coords = position.coords;
@@ -53,6 +53,11 @@ export default {
       // 現在地取得不可の場合は東京駅周辺に移動
       this.maplocation.lat = 35.6813092;
       this.maplocation.lng = 139.7677269;
+      this.$gmapApiPromiseLazy().then(() => {
+        google.maps.event.addListenerOnce(this.$refs.mapRef.$mapObject, 'idle',
+          function() { this.setPlaceMakers() }.bind(this)
+        );
+      });
     }
   },
   methods: {
@@ -64,13 +69,11 @@ export default {
         {
           location: new google.maps.LatLng(this.maplocation.lat, this.maplocation.lng),
           radius: 500,
-          type: ['convenience_store'],
-          keyword: 'セブン'
+          type: ['restaurant']
         },
         function(results, status) {
           if (status == google.maps.places.PlacesServiceStatus.OK) {
             results.forEach(place => {
-              console.log(place)
               // デフォルトのアイコンが大きめなので縮小
               let icon = {
                 url: place.icon, // url

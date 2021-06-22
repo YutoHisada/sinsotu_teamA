@@ -195,7 +195,7 @@ router.beforeEach(async(to, from, next) => {
         key: 'AIzaSyAxisqbDtjxsblijsRF4isATj0EOFkG5bM',
         libraries: 'places',
         region: 'JP',
-    language: 'ja'
+        language: 'ja'
     }
 })
 
