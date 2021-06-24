@@ -103,9 +103,9 @@
       </div>
       <div class="form-check">
         <input type="checkbox" id="checkBox6" value="弁当" v-model="genres">弁当
-        <input type="checkbox" id="checkBox7" value="スーパー" v-model="genres">スーパー
       </div>
     </div>
+    {{ genres }}
 
     <input type="text" id="genreTextID" v-model="genreText" value="" style="width: 200px">
     <button id="searchButton" v-on:click="search"><i class="fas fa-search"></i></button>
@@ -126,6 +126,11 @@
       <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" v-model="circleMode">
       <label v-if="circleMode" for="flexSwitchCheckDefault">円描画ON</label>
       <label v-else for="flexSwitchCheckDefault">円描画OFF</label>
+    </div>
+
+    <div>
+      <button @click="randomGenre">ランダムジャンル</button>
+      <button @click="randomRest">ランダム店舗</button>
     </div>
 
     <router-link 
@@ -156,7 +161,9 @@
                   <td class="text-center align-middle">
                     <a v-bind:href="'https://www.google.com/maps/search/?api=1&query=' + review.name">{{ review.name }}</a>
                   </td>
-                  <td class="text-center align-middle" style="white-space: pre;">{{ review.comment }}</td>
+                  <td class="text-center align-middle" style="white-space: pre;">
+                    <div @click="fullWindow(review.comment)">{{ review.comment|truncate }}<span style = "color: #00AEEF">...</span></div>
+                  </td>
                   <td><button type="button" class="btn btn-danger" v-show="own.name === review.user_name" @click="onDelete(review.id)">削除</button></td>
                 </tr>
               </tbody>
@@ -175,8 +182,12 @@
                 <tr v-for="(review, index) in reviewsFilter" :key=index class="bg-white">
                   <!--<td class="text-center align-middle">{{ inventory.id }}</td>-->
                   <td class="text-center align-middle">{{ review.user_name }}</td>
-                  <td class="text-center align-middle">{{ review.name }}</td>
-                  <td class="text-center align-middle" style="white-space: pre;">{{ review.comment }}</td>
+                  <td class="text-center align-middle">
+                    <a v-bind:href="'https://www.google.com/maps/search/?api=1&query=' + review.name">{{ review.name }}</a>
+                  </td>
+                  <td class="text-center align-middle" style="white-space: pre;">
+                    <div @click="fullWindow(review.comment)">{{ review.comment|truncate }}<span style = "color: #00AEEF">...</span></div>
+                  </td>
                   <td><button type="button" class="btn btn-danger" v-show="own.name === review.user_name" @click="onDelete(review.id)">削除</button></td>
                 </tr>
               </tbody>
@@ -201,9 +212,10 @@ export default {
       hoge: [],
       place: '岡崎橋ビル',
       markerCount: 0,
+      genreCount: 6, 
       genreText: '',
       genreTextHoge: '',
-      keepKeyword: '',
+      randomOpenRest: false,
       sliderNum: 3,
       range: 200,
       radius: 400,
@@ -265,6 +277,10 @@ export default {
     }
   },
   methods: {
+    fullWindow(Message)
+    {
+      alert(Message)
+    },
     onResume(review) {
       this.$router.push({ name: 'create', params: { ReviewId: Review.id } })
     },
@@ -306,7 +322,6 @@ export default {
       }))
     },
     setPlaceMarkers(genre) {
-      this.keepKeyword = genre
       let map = this.$refs.mapRef.$mapObject
       let placeService = new google.maps.places.PlacesService(map);
       // Places APIのnearbySearchを使用する。
@@ -397,13 +412,7 @@ export default {
       );
     },
     async search() {
-      document.getElementById("checkBox1").checked = false
-      document.getElementById("checkBox2").checked = false
-      document.getElementById("checkBox3").checked = false
-      document.getElementById("checkBox4").checked = false
-      document.getElementById("checkBox5").checked = false
-      document.getElementById("checkBox6").checked = false
-      document.getElementById("checkBox7").checked = false
+      this.resetGenre()
       this.genres = []
 
       const select = document.getElementById("log")
@@ -446,7 +455,6 @@ export default {
 
       this.genreTextHoge = this.genreText
       this.genreText = ''
-      document.getElementById("searchButton").disabled = true
     },
     async geocode() {
       this.geocoder.geocode({
@@ -467,6 +475,7 @@ export default {
       })
 
       this.geo = ''
+      document.getElementById("geoButton").disabled = true
     },
     toggleInfoWindow(marker) {
       this.infoMsg = `${marker.title}<br><a href="https://www.google.com/maps/search/?api=1&query=${marker.title}"target="_blank" >Googleマップで見る</a><br>${marker.open}`
@@ -491,6 +500,118 @@ export default {
       else {
         this.reviewsFilter = []
       }
+    },
+    async randomGenre() {
+      this.genres = []
+      this.resetGenre()
+      let randNum = Math.floor(Math.random() * this.genreCount)
+
+      switch(randNum) {
+        case 0:
+          document.getElementById("checkBox1").checked = true
+          this.genres.push("和食")
+          break
+        case 1:
+          document.getElementById("checkBox2").checked = true
+          this.genres.push("洋食")
+          break
+        case 2:
+          document.getElementById("checkBox3").checked = true
+          this.genres.push("中華")
+          break
+        case 3:
+          document.getElementById("checkBox4").checked = true
+          this.genres.push("居酒屋")
+          break
+        case 4:
+          document.getElementById("checkBox5").checked = true
+          this.genres.push("ラーメン")
+          break
+        case 5:
+          document.getElementById("checkBox6").checked = true
+          this.genres.push("弁当")
+          break
+      }
+    },
+    async randomRest() {
+      this.resetGenre()
+      this.randomOpenRest = false
+
+      let randNum = Math.floor(Math.random() * this.genreCount)
+      let randGenre
+      switch(randNum) {
+        case 0:
+          document.getElementById("checkBox1").checked = true
+          randGenre = "和食"
+          break
+        case 1:
+          document.getElementById("checkBox2").checked = true
+          randGenre = "洋食"
+          break
+        case 2:
+          document.getElementById("checkBox3").checked = true
+          randGenre = "中華"
+          break
+        case 3:
+          document.getElementById("checkBox4").checked = true
+          randGenre = "ラーメン"
+          break
+        case 4:
+          document.getElementById("checkBox5").checked = true
+          randGenre = "弁当"
+          break
+        case 5:
+          document.getElementById("checkBox6").checked = true
+          randGenre = "居酒屋"
+          break
+      }
+
+      let self = this
+      let choiceRest
+      // //ランダムジャンルで店舗検索
+      let map = this.$refs.mapRef.$mapObject
+      let placeService = new google.maps.places.PlacesService(map)
+      // // Places APIのnearbySearchを使用する。
+      placeService.nearbySearch(
+        {
+          location: new google.maps.LatLng(this.maplocation.lat, this.maplocation.lng),
+          radius: this.radius,
+          type: '',
+          keyword: randGenre,
+        },
+        
+        function(results, status) {
+          if (status == google.maps.places.PlacesServiceStatus.OK) {
+            let randRest = Math.floor(Math.random() * results.length)
+            let i = 0 
+            results.forEach(place => {
+              if(i == randRest) {
+                console.log(place)
+                let marker = {
+                  position: place.geometry.location,
+                  icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                  title: place.name,
+                  id: place.place_id,
+                  open: '営業しています'
+                }
+                self.markers = []
+                self.markers.push(marker);
+              }
+
+              i++
+            })
+          }
+        }
+      )
+      
+    },
+    async resetGenre() {
+      document.getElementById("checkBox1").checked = false
+      document.getElementById("checkBox2").checked = false
+      document.getElementById("checkBox3").checked = false
+      document.getElementById("checkBox4").checked = false
+      document.getElementById("checkBox5").checked = false
+      document.getElementById("checkBox6").checked = false
     }
   },
   computed: {
@@ -514,9 +635,19 @@ export default {
       }
     }
   },
+  filters: {
+    truncate: function(value) {
+      var length = 10;  //区切る文字数
+      var ommision = ''; //語尾
+      if (value.length <= length) {
+        return value;
+      }
+      //omissionの部分だけシアン(=#00AEEF)にしたい
+      return value.substring(0, length) + ommision;
+    }
+  },
   watch: {
     place: async function(){
-      console.log(this.keepKeyword)
 
       if(this.place == '岡崎橋ビル')
       {
@@ -551,15 +682,22 @@ export default {
       this.genresFunc()
     },
     genreText: async function() {
-      if(this.genreText.length > 0) {
-        document.getElementById("searchButton").disabled = false
+      console.log(this.genreText)
+      if(this.genreText != undefined) {
+        if(this.genreText != '') {
+          document.getElementById("searchButton").disabled = false
+        }
+        else {
+          document.getElementById("searchButton").disabled = true
+        }
       }
       else {
         document.getElementById("searchButton").disabled = true
       }
+      
     },
     geo: async function() {
-      if(document.getElementById("geo").value.length > 0) {
+      if(this.geo.length > 0) {
         document.getElementById("geoButton").disabled = false
       }
       else {
