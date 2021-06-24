@@ -159,7 +159,7 @@
                   <!--<td class="text-center align-middle">{{ inventory.id }}</td>-->
                   <td class="text-center align-middle">{{ review.user_name }}</td>
                   <td class="text-center align-middle">
-                    <a v-bind:href="'https://www.google.com/maps/search/?api=1&query=' + review.name">{{ review.name }}</a>
+                    <a v-bind:href="'https://www.google.com/maps/search/?api=1&query=' + review.name" target="_blank">{{ review.name }}</a>
                   </td>
                   <td class="text-center align-middle" style="white-space: pre;">
                     <div @click="fullWindow(review.comment)">{{ review.comment|truncate }}<span style = "color: #00AEEF">...</span></div>

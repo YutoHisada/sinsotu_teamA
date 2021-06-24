@@ -153,7 +153,7 @@ const store = new Vuex.Store({
         async getUser (state, payload) {
             const res = await axios.get('/api/user/info')
             state.user = res.data
-            console.log('getUser')
+            // console.log('getUser')
         },
     },
     actions: {
