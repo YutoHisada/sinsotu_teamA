@@ -54,18 +54,26 @@
           { visibility: 'off' }
         ]},
       ]}"
-     map-type-id="roadmap"
-     style="width: 500px; height: 300px"
-     ref="mapRef" 
-    >
+      map-type-id="roadmap"
+      style="width: 500px; height: 500px"
+      ref="mapRef" 
+      >
 
-      <GmapInfoWindow
-        :options="infoOptions"
-        :position="infoWindowPos"
-        :opened="infoWinOpen"
-        @closeclick="infoWinOpen=false"
-      ><div v-html="infoMsg"></div>
-      </GmapInfoWindow>
+      <div v-if="circleMode">
+        <GmapCircle
+          :center="nowMark.position"
+          :radius=this.radius
+          :options="{fillColor:'#7cfc00',fillOpacity:0.1}"
+        ></GmapCircle>
+      </div>
+
+      <GmapMarker
+        :position="nowMark.position"
+        :clickable="false"
+        :draggable="false"
+        :icon="nowMark.iconUrl"
+        :key="nowMark.id"
+      ></GmapMarker>
 
       <GmapMarker v-for="m in markers"
         :position="m.position"
@@ -77,6 +85,14 @@
         @click="toggleInfoWindow(m)"
         >
       </GmapMarker>
+
+      <GmapInfoWindow
+        :options="infoOptions"
+        :position="infoWindowPos"
+        :opened="infoWinOpen"
+        @closeclick="infoWinOpen=false"
+      ><div v-html="infoMsg"></div>
+      </GmapInfoWindow>
     </GmapMap>
 
     <input type="text" id="geo" v-model="geo" style="width: 200px">
@@ -105,7 +121,6 @@
         <input type="checkbox" id="checkBox6" value="弁当" v-model="genres">弁当
       </div>
     </div>
-    {{ genres }}
 
     <input type="text" id="genreTextID" v-model="genreText" value="" style="width: 200px">
     <button id="searchButton" v-on:click="search"><i class="fas fa-search"></i></button>
@@ -130,7 +145,7 @@
 
     <div>
       <button @click="randomGenre">ランダムジャンル</button>
-      <button @click="randomRest">ランダム店舗</button>
+      <button @click="randomRest(0)">ランダム店舗</button>
     </div>
 
     <router-link 
@@ -162,7 +177,8 @@
                     <a v-bind:href="'https://www.google.com/maps/search/?api=1&query=' + review.name" target="_blank">{{ review.name }}</a>
                   </td>
                   <td class="text-center align-middle" style="white-space: pre;">
-                    <div @click="fullWindow(review.comment)">{{ review.comment|truncate }}<span style = "color: #00AEEF">...</span></div>
+                    <div v-if="review.comment.length > 10" @click="fullWindow(review.comment)">{{ review.comment|truncate }}<span style = "color: #00AEEF">...</span></div>
+                    <div v-else>{{ review.comment|truncate }}</div>
                   </td>
                   <td><button type="button" class="btn btn-danger" v-show="own.name === review.user_name" @click="onDelete(review.id)">削除</button></td>
                 </tr>
@@ -186,7 +202,8 @@
                     <a v-bind:href="'https://www.google.com/maps/search/?api=1&query=' + review.name">{{ review.name }}</a>
                   </td>
                   <td class="text-center align-middle" style="white-space: pre;">
-                    <div @click="fullWindow(review.comment)">{{ review.comment|truncate }}<span style = "color: #00AEEF">...</span></div>
+                    <div v-if="review.comment.length > 10" @click="fullWindow(review.comment)">{{ review.comment|truncate }}<span style = "color: #00AEEF">...</span></div>
+                    <div v-else>{{ review.comment|truncate }}</div>
                   </td>
                   <td><button type="button" class="btn btn-danger" v-show="own.name === review.user_name" @click="onDelete(review.id)">削除</button></td>
                 </tr>
@@ -204,6 +221,13 @@ export default {
     return {
       maplocation:{lat:0, lng:0},
       openshop: [],
+      nowMark: {
+        position:{
+          lat: 34.682910319991365,
+          lng: 135.4893996106105,
+        },
+        iconUrl: 'images/nowMark.png',
+      },
       markers:[],
       genres: [],
       logs: [],
@@ -215,7 +239,6 @@ export default {
       genreCount: 6, 
       genreText: '',
       genreTextHoge: '',
-      randomOpenRest: false,
       sliderNum: 3,
       range: 200,
       radius: 400,
@@ -322,6 +345,9 @@ export default {
       }))
     },
     setPlaceMarkers(genre) {
+      // ゴリ押しズレ直し
+      this.infoOptions = {pixelOffset:{width: 15, height: 0,}}
+
       let map = this.$refs.mapRef.$mapObject
       let placeService = new google.maps.places.PlacesService(map);
       // Places APIのnearbySearchを使用する。
@@ -336,32 +362,25 @@ export default {
           if (status == google.maps.places.PlacesServiceStatus.OK) {
             results.forEach(place => {
 
-              // new google.maps.places.PlacesService(map).getDetails({
-              //   placeId: place.place_id,
-              //   fields: ['opening_hours','utc_offset_minutes'],
-              //   }, function (place, status) {
-              //     console.log(place)
-              //     if (status !== 'OK') return; // something went wrong
-              //     const isOpenAtTime = place.opening_hours.isOpen(new Date());
-              //     if (isOpenAtTime) {
-              //         // We know it's open.
-              //         // console.log(isOpenAtTime)
-              //     }
-
-              //     const isOpenNow = place.opening_hours.isOpen();
-              //     if (isOpenNow) {
-              //         // We know it's open.
-              //         // console.log(isOpenNow)
-              //     }
-              // });
-
               let iconUrl
               switch(genre) {
                 case'和食':
-                  iconUrl = 'images/green.png'
+                  iconUrl = 'images/wasyokuIcon.png'
+                  break
+                case'洋食':
+                  iconUrl = 'images/yousyokuIcon.png'
+                  break
+                case'中華':
+                  iconUrl = 'images/tyuukaIcon.png'
+                  break
+                case'弁当':
+                  iconUrl = 'images/bentouIcon.png'
+                  break
+                case'居酒屋':
+                  iconUrl = 'images/izakayaIcon.png'
                   break
                 case'ラーメン':
-                  iconUrl = 'images/orange.png'
+                  iconUrl = 'images/ra-menIcon.png'
                   break
                 default:
                   iconUrl = 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
@@ -375,25 +394,12 @@ export default {
                 anchor: new google.maps.Point(0, 0) // anchor
               };
 
-              let msg = ''
-              if(place.opening_hours == undefined || place.opening_hours.open_now == undefined) {
-                msg = "営業情報が取得出来ませんでした"
-              } 
-              else {
-                if(place.opening_hours.open_now == true) {
-                  msg = "営業しています"
-                }
-                else {
-                  msg ="休憩もしくは閉店しています"
-                }
-              }
 
               let marker = {
                 position: place.geometry.location,
                 icon: icon,
                 title: place.name,
-                id: place.place_id,
-                open: msg
+                place_id: place.place_id,
               };
               this.markers.push(marker);
 
@@ -426,7 +432,7 @@ export default {
         this.logs.unshift(this.genreText)
         const option = document.createElement("option")
         option.text = this.genreText
-        option.value = this.genreText  
+        option.value = this.genreText
         // ここで要素を先頭に追加
         select.add(option, 0)
       }
@@ -461,8 +467,10 @@ export default {
         'address': this.geo
       },(results, status) => {
         if(status === google.maps.GeocoderStatus.OK) {
-          this.maplocation.lat = results[0].geometry.location.lat();
-          this.maplocation.lng = results[0].geometry.location.lng();
+          this.maplocation.lat = results[0].geometry.location.lat()
+          this.maplocation.lng = results[0].geometry.location.lng()
+          this.nowMark.position.lat = results[0].geometry.location.lat()
+          this.nowMark.position.lng = results[0].geometry.location.lng()
 
           if(this.genres.length > 0) {
           this.genresFunc()
@@ -478,14 +486,50 @@ export default {
       document.getElementById("geoButton").disabled = true
     },
     toggleInfoWindow(marker) {
-      this.infoMsg = `${marker.title}<br><a href="https://www.google.com/maps/search/?api=1&query=${marker.title}"target="_blank" >Googleマップで見る</a><br>${marker.open}`
-      this.infoMsg += `<br><button onclick='location.href="/create/${marker.title}"' value=''>レビューを投稿</button>`
-      // var div = document.createElement('div')
-      // div.style.display = 'none'
-      // div.innerHTML = this.infoMsg
-      // this.infoMsg = div
-      this.infoWindowPos = marker.position;
-      this.infoWinOpen = true;
+      let msg = ''
+      let map = this.$refs.mapRef.$mapObject
+
+      new google.maps.places.PlacesService(map).getDetails({
+        placeId: marker.place_id,
+        fields: ['opening_hours','utc_offset_minutes'],
+
+      }, function (place, status) {
+        let todayDay = new Date().getDay()
+        //googleMapの曜日とgetDayの曜日を統一する処理
+        if(todayDay == 0) {
+          todayDay += 6
+        }
+        else {
+          todayDay--
+        }
+
+        if (status !== 'OK') return // something went wrong
+
+        if(place.opening_hours != undefined) {
+          if(place.opening_hours.weekday_text != undefined) {
+            msg += place.opening_hours.weekday_text[todayDay] + '<br>'
+          }
+         
+          if (place.opening_hours.isOpen() == true) {
+            // We know it's open.
+            // console.log(isOpenNow)
+            msg += '営業しています'
+          }
+          else {
+            msg += '休業もしくは閉店しています'
+          }
+        }
+        else {
+          msg += '営業情報が取得できませんでした'
+        }
+         
+        this.infoMsg = `${marker.title}<br><a href="https://www.google.com/maps/search/?api=1&query=${marker.title}"target="_blank" >Googleマップで見る</a><br>${msg}`
+        this.infoMsg += `<br><button onclick='location.href="/create/${marker.title}"' value=''>レビューを投稿</button>`
+        this.infoWindowPos = marker.position;
+        this.infoWinOpen = true;
+      }.bind(this));
+
+     
     },
     genresFunc() {
       // マーカーを一度削除
@@ -533,79 +577,129 @@ export default {
           break
       }
     },
-    async randomRest() {
-      this.resetGenre()
-      this.randomOpenRest = false
+    async randomRest(count) {
+      console.log(count)
+      if(count < 10) {
+        this.infoWinOpen=false
+        this.resetGenre()
 
-      let randNum = Math.floor(Math.random() * this.genreCount)
-      let randGenre
-      switch(randNum) {
-        case 0:
-          document.getElementById("checkBox1").checked = true
-          randGenre = "和食"
-          break
-        case 1:
-          document.getElementById("checkBox2").checked = true
-          randGenre = "洋食"
-          break
-        case 2:
-          document.getElementById("checkBox3").checked = true
-          randGenre = "中華"
-          break
-        case 3:
-          document.getElementById("checkBox4").checked = true
-          randGenre = "ラーメン"
-          break
-        case 4:
-          document.getElementById("checkBox5").checked = true
-          randGenre = "弁当"
-          break
-        case 5:
-          document.getElementById("checkBox6").checked = true
-          randGenre = "居酒屋"
-          break
-      }
-
-      let self = this
-      let choiceRest
-      // //ランダムジャンルで店舗検索
-      let map = this.$refs.mapRef.$mapObject
-      let placeService = new google.maps.places.PlacesService(map)
-      // // Places APIのnearbySearchを使用する。
-      placeService.nearbySearch(
-        {
-          location: new google.maps.LatLng(this.maplocation.lat, this.maplocation.lng),
-          radius: this.radius,
-          type: '',
-          keyword: randGenre,
-        },
-        
-        function(results, status) {
-          if (status == google.maps.places.PlacesServiceStatus.OK) {
-            let randRest = Math.floor(Math.random() * results.length)
-            let i = 0 
-            results.forEach(place => {
-              if(i == randRest) {
-                console.log(place)
-                let marker = {
-                  position: place.geometry.location,
-                  icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                  title: place.name,
-                  id: place.place_id,
-                  open: '営業しています'
-                }
-                self.markers = []
-                self.markers.push(marker);
-              }
-
-              i++
-            })
-          }
+        let randNum = Math.floor(Math.random() * this.genreCount)
+        let randGenre
+        switch(randNum) {
+          case 0:
+            randGenre = "和食"
+            break
+          case 1:
+            randGenre = "洋食"
+            break
+          case 2:
+            randGenre = "中華"
+            break
+          case 3:
+            randGenre = "ラーメン"
+            break
+          case 4:
+            randGenre = "弁当"
+            break
+          case 5:
+            randGenre = "居酒屋"
+            break
         }
-      )
+
+        let iconUrl
+        switch(randGenre) {
+          case'和食':
+            iconUrl = 'images/wasyokuIcon.png'
+            break
+          case'洋食':
+            iconUrl = 'images/yousyokuIcon.png'
+            break
+          case'中華':
+            iconUrl = 'images/tyuukaIcon.png'
+            break
+          case'弁当':
+            iconUrl = 'images/bentouIcon.png'
+            break
+          case'居酒屋':
+            iconUrl = 'images/izakayaIcon.png'
+            break
+          case'ラーメン':
+            iconUrl = 'images/ra-menIcon.png'
+            break
+          default:
+            iconUrl = 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+        }
+
+        // //ランダムジャンルで店舗検索
+        let map = this.$refs.mapRef.$mapObject
+        let placeService = new google.maps.places.PlacesService(map)
+        // // Places APIのnearbySearchを使用する。
+        placeService.nearbySearch(
+          {
+            location: new google.maps.LatLng(this.maplocation.lat, this.maplocation.lng),
+            radius: this.radius/2,
+            type: '',
+            keyword: randGenre,
+          },
+          
+          function(results, status) {
+            if (status == google.maps.places.PlacesServiceStatus.OK) {
+              const msg = '営業しています'
+              let randRest = Math.floor(Math.random() * results.length)
+              let i = 0
+              this.markers = []
+              results.forEach(place => {
+                if(i == randRest) {
+
+                  let map = this.$refs.mapRef.$mapObject
+
+                  new google.maps.places.PlacesService(map).getDetails({
+                    placeId: place.place_id,
+                    fields: ['opening_hours','utc_offset_minutes'],
+
+                  }, function (place, status) {
+
+                    if (status !== 'OK') return // something went wrong
+
+                    if(place.opening_hours != undefined) {
+                      if (place.opening_hours.isOpen() == false) {
+                        this.randomRest(count+1)
+                      }
+                    }
+                    else {
+                      this.randomRest(count+1)
+                    }
+                    
+                    this.infoMsg = `${place.title}<br><a href="https://www.google.com/maps/search/?api=1&query=${place.title}"target="_blank" >Googleマップで見る</a><br>${msg}`
+                    this.infoMsg += `<br><button onclick='location.href="/create/${place.title}"' value=''>レビューを投稿</button>`
+                    this.infoWindowPos = place.position;
+                    this.infoWinOpen = true;
+                  }.bind(this));
+
+                  let marker = {
+                    position: place.geometry.location,
+                    icon: iconUrl,
+                    title: place.name,
+                    place_id: place.place_id,
+                  }
+                  this.markers.push(marker);
+                }
+
+                i++
+              })
+            }
+          }.bind(this)
+        )
+        //もしものゴリ押しズレ直し
+        this.infoOptions = {pixelOffset:{width: -1, height: -31,}}
+      }
+      else {
+        alert('近くに営業しているお店が見つかりませんでした。\nもう一度お試しください。')
+      }
       
     },
     async resetGenre() {
+      this.genres = []
       document.getElementById("checkBox1").checked = false
       document.getElementById("checkBox2").checked = false
       document.getElementById("checkBox3").checked = false
@@ -653,6 +747,8 @@ export default {
       {
         this.maplocation.lat = 34.682910319991365
         this.maplocation.lng = 135.4893996106105
+        this.nowMark.position.lat = 34.682910319991365
+        this.nowMark.position.lng = 135.4893996106105
         if(this.genres.length > 0) {
           this.genresFunc()
         }
@@ -665,6 +761,8 @@ export default {
       {
         this.maplocation.lat = 34.67981481380863
         this.maplocation.lng = 135.49274708362623
+        this.nowMark.position.lat = 34.67981481380863
+        this.nowMark.position.lng = 135.49274708362623
         if(this.genres.length > 0) {
           this.genresFunc()
         }
@@ -673,6 +771,7 @@ export default {
           this.setPlaceMarkers(this.genreTextHoge)
         }
       }
+      this.infoWinOpen=false
     },
     genres: async function(){
       if(this.genres.length > 0) {
@@ -680,9 +779,9 @@ export default {
       }
 
       this.genresFunc()
+      this.infoWinOpen=false
     },
     genreText: async function() {
-      console.log(this.genreText)
       if(this.genreText != undefined) {
         if(this.genreText != '') {
           document.getElementById("searchButton").disabled = false
@@ -703,6 +802,7 @@ export default {
       else {
         document.getElementById("geoButton").disabled = true
       }
+      this.infoWinOpen=false
     },
     sliderNum: async function(){
       let searchRange = this.sliderNum * this.range
@@ -710,7 +810,7 @@ export default {
 
       switch(this.sliderNum) {
         case '1':
-          this.zoomMap = 16.5
+          this.zoomMap = 16.2
           break
         case '2':
           this.zoomMap = 15.5
@@ -735,6 +835,7 @@ export default {
         this.markers = []
         this.setPlaceMarkers(this.genreTextHoge)
       }
+      this.infoWinOpen=false
     },
   }
 }
