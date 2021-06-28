@@ -15,8 +15,8 @@ class CreateReviewsTable extends Migration
     {
         Schema::create('reviews', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name')->nullable()->comment('店名');
-            $table->string('comment')->nullable()->comment('コメント');
+            $table->string('name')->comment('店名');
+            $table->string('comment')->comment('コメント');
             $table->unsignedBigInteger('user_id')->nullable()->comment('ユーザID');
             $table->softDeletes();
             $table->timestamps();

@@ -23,9 +23,28 @@ class ReviewController extends Controller
     public function index(Request $request)
     {
         $reviews = Review::all();
-        logger($reviews);
         $offset = $request->offset;
         $limit = $request->limit;
+        $sort = json_decode($request->sort, true);
+        $count_items = $request->count_items;
+        // $query = Review::when($count_items, function ($query) use ($count_items) {
+        //     $query->count();
+        // });
+        $count_items = Review::count();
+        $reviews = Review::offset($offset)
+            ->limit($limit)
+            ->get();
+        // $count_items = $query->count();
+        if ($sort['isAsc']) {
+            $reviews = Review::orderBy("{$sort['key']}", 'asc')->offset($offset)->limit($limit)->get();
+        } else {
+            $reviews = Review::orderBy("{$sort['key']}", 'desc')->offset($offset)->limit($limit)->get();
+        }
+
+        return response()->json([
+            'total_items' => $count_items,
+            'reviews' => ReviewForListResource::collection($reviews),
+        ]);
 
 
         return ReviewForListResource::collection($reviews);

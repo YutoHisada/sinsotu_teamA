@@ -113,10 +113,12 @@
               <label for="one">岡崎橋</label>
               <input type="radio" id="two" value="本社" v-model="place" />
               <label for="two">本社</label>
+              <button @click="randomRest(0)">ランダム店舗</button>
+              {{ reviewsFilter }}
             </div>
             <div class="col-md-8">
               <input type="text" v-model="geo" style="width: 250px" placeholder="上記以外の場所検索はこちら" />
-              <button v-on:click="geocoder">
+              <button id="geoButton" v-on:click="geocode">
                 <i class="fas fa-search"></i>
               </button>
             </div>
@@ -167,7 +169,7 @@
             </div>
             <div class="col-md-8" style="float: left;">
               <input type="text" v-model="genreText" value="" placeholder="上記以外のジャンル検索はこちら" style="width: 250px" />
-              <button id="search" v-on:click="search">
+              <button id="searchButton" v-on:click="search">
                 <i class="fas fa-search"></i>
               </button>
               <div>
@@ -178,7 +180,7 @@
           </div>
           <div>
             <label>検索範囲</label>
-            <input type="range" min="1" max="5" step="1" v-model="sliderNum" style="margin-bottom: 20px; margin-left: 10px" /> 
+            <input type="range" min="1" max="5" step="1" v-model="sliderNum" style="margin-bottom: 20px; margin-left: 10px" />
           </div>
           <div>
             <span v-if="sliderNum==1">半径：200m 徒歩片道：約3分</span>
@@ -197,47 +199,83 @@
           </div>
           <div class="row">
             <div class="col-md-12">
-              <span class="span-header">レビュー一覧</span>
-              <router-link to="/create" class="btn btn-primary" @click="onResume(review)" style="float: right">投稿</router-link>
-              <table class="table table-sm" key="processes">
-                <thead>
-                  <tr>
-                    <th class="text-center bg-primary text-white" style="width: 30%;">投稿者</th>
-                    <th class="text-center bg-primary text-white" style="width: 30%;">店名</th>
-                    <th class="text-center bg-primary text-white" style="width: 30%;">コメント</th>
-                    <th class="text-center bg-primary text-white" style="width: 10%;">削除</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(review, index) in reviews" :key="index" class="bg-white" style="font-size: 80%;">
-                    <td class=""> {{ review.user_name }} </td>
-                    <td class="">{{ review.name }}</td>
-                    <td style="">{{ review.comment }}</td>
-                    <td>
-                      <i class="fas fa-trash-alt fa-2x red d-flex justify-content-center" v-if="own.name === review.user_name" @click="onDelete(review.id)"></i>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <pagination
-                :page="currentPage"
-                :items-per-page="itemsPerPage"
-                :max-visible-pages="maxVisiblePages"
-                :total-items="totalItems"
-                @pageChange="pageChange"
-              />
-              <loading :active.sync="isLoading" :is-full-page="fullPage"></loading>
+              <div v-if="reviewsFilter.length === 0"><span class="span-header">レビュー一覧</span><router-link to="/create" class="btn btn-primary" @click="onResume(review)" style="float: right">投稿</router-link> 
+              <!-- <div v-else><span class="span-header">マーカーにあるレビュー</span><router-link to="/create" class="btn btn-primary" @click="onResume(review)" style="float: right">投稿</router-link></div> -->
+                <table class="table table-sm" key="processes">
+                    <thead>
+                      <tr>
+                        <th class="text-center bg-primary text-white" style="width: 30%;">投稿者</th>
+                        <th class="text-center bg-primary text-white" style="width: 30%;">店名</th>
+                        <th class="text-center bg-primary text-white" style="width: 30%;">コメント</th>
+                        <th class="text-center bg-primary text-white" style="width: 10%;">削除</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(review, index) in reviews" :key="index" class="bg-white" style="font-size: 80%;">
+                        <td class=""> {{ review.user_name }} </td>
+                        <td class=""><a v-bind:href="'https://www.google.com/maps/search/?api=1&query=' + review.name" target="_blank">{{ review.name }}</a></td>
+                        <td class="text-center align-middle" style="white-space: pre;">
+                          <div v-if="review.comment.length > 10" @click="fullWindow(review.comment)">{{ review.comment|truncate }}<span style = "color: #00AEEF">...</span></div>
+                          <div v-else>{{ review.comment|truncate }}</div>
+                        </td>
+                        <td>
+                          <i class="fas fa-trash-alt fa-2x red d-flex justify-content-center" v-if="own.name === review.user_name" @click="onDelete(review.id)"></i>
+                        </td>
+                      </tr>
+                    </tbody>
+                </table>
+                <pagination
+                  :page="currentPage"
+                  :items-per-page="itemsPerPage"
+                  :max-visible-pages="maxVisiblePages"
+                  :total-items="totalItems"
+                  @pageChange="pageChange"
+                />
+                <loading :active.sync="isLoading" :is-full-page="fullPage"></loading>
+              </div>
+              <div v-else><span class="span-header">マーカーにあるレビュー</span><router-link to="/create" class="btn btn-primary" @click="onResume(review)" style="float: right">投稿</router-link>
+                <table class="table table-sm" key="processes">
+                    <thead>
+                      <tr>
+                        <th class="text-center bg-primary text-white" style="width: 30%;">投稿者</th>
+                        <th class="text-center bg-primary text-white" style="width: 30%;">店名</th>
+                        <th class="text-center bg-primary text-white" style="width: 30%;">コメント</th>
+                        <th class="text-center bg-primary text-white" style="width: 10%;">削除</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(review, index) in reviewsFilter" :key="index" class="bg-white" style="font-size: 80%;">
+                        <td class=""> {{ review.user_name }} </td>
+                        <td class=""><a v-bind:href="'https://www.google.com/maps/search/?api=1&query=' + review.name" target="_blank">{{ review.name }}</a></td>
+                        <td class="text-center align-middle" style="white-space: pre;">
+                          <div v-if="review.comment.length > 10" @click="fullWindow(review.comment)">{{ review.comment|truncate }}<span style = "color: #00AEEF">...</span></div>
+                          <div v-else>{{ review.comment|truncate }}</div>
+                        </td>
+                        <td>
+                          <i class="fas fa-trash-alt fa-2x red d-flex justify-content-center" v-if="own.name === review.user_name" @click="onDelete(review.id)"></i>
+                        </td>
+                      </tr>
+                    </tbody>
+                </table>
+                <pagination
+                  :page="currentPage"
+                  :items-per-page="itemsPerPage"
+                  :max-visible-pages="maxVisiblePages"
+                  :total-items="reviewsFilter.length"
+                  @pageChange="pageChange"
+                />
+                <loading :active.sync="isLoading" :is-full-page="fullPage"></loading>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    sinki2
           
   </div>
 </template>
 <script>
-import Pagination from './commons/Pagination.vue'
+import Pagination from './commons/Pagination.vue';
 export default {
   components: { Pagination },
   data() {
@@ -297,13 +335,13 @@ export default {
     }
   },
   async mounted() {
-    this.calculateWindowWidth();
-    window.addEventListener('resize', this.calculateWindowWidth);
-
+    this.isLoading = true;
+    this.calculateWindowWidth()
+    window.addEventListener('resize', this.calculateWindowWidth)
     document.getElementById("geoButton").disabled = true
     document.getElementById("searchButton").disabled = true
     document.getElementById("log").disabled = true
-    this.getItems();
+    this.getItems()
     // 現在地の取得
     if (false) {
       navigator.geolocation.getCurrentPosition(
@@ -773,25 +811,9 @@ export default {
     }
   },
   computed: {
-    sortReviews() {
-      if(this.reviewsFilter.length == 0) {
-        return this.reviews.slice().reverse();
-      }
-      else {
-        return this.reviewsFilter.slice().reverse();
-      }
-    },
     own() {
-      return this.$store.state.user
+      return this.$store.state.user;
     },
-    getPageCount() {
-      if(this.reviewsFilter.length == 0) {
-        return Math.ceil(this.reviews.length / this.parpage)
-      }
-      else {
-        return Math.ceil(this.reviewsFilter.length / this.parpage)
-      }
-    }
   },
   created() {
     window.addEventListener('resize', this.handleResize)

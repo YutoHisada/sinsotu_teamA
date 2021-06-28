@@ -26,8 +26,15 @@
                     </div>
                     <div class="form-group">
                         <div class="form-group">
-                            <textarea  class="form-control" style="height: 300px;" placeholder="コメント内容" v-model="review.comment"></textarea>
+                            <textarea  class="form-control" style="height: 120px;" placeholder="コメント内容" v-model="review.comment"></textarea>
                         </div>
+                    </div>
+                    <div class="row-line">
+                        <transition name="fade" mode="out-in">
+                        <div class="alert alert-danger" role="alert" v-if="invalid">
+                        {{errorMessage}}
+                        </div>
+                        </transition>
                     </div>
                 </div>
             </div>
@@ -49,6 +56,8 @@ export default {
               comment: '',  
             },
             isLoading: false,
+            errorMessage: '',
+            invalid: false,
         }
     },
     created () {
@@ -81,13 +90,27 @@ export default {
         },
         onStore: function () {
             let _this = this
+            this.errorMessage = ""
+
+            if (!this.review.name) {
+                this.errorMessage = '店名を入力してください。'
+                this.invalid = true
+                return 
+            }
+            if (!this.review.comment) {
+                this.errorMessage = 'コメントを入力してください。'
+                this.invalid = true
+                return 
+            }
+
+            
             axios.post('/api/review', {
                 review: this.review,
             })
             .then(function (resp) {
                 if (resp.data.result) {
                     alert('投稿しました。')
-                    _this.$router.go(-1)
+                    _this.$router.push({name: "map"});
                 } else {
                     _this.errorMessage = resp.data.errorMessage
                     _this.invalid = true
