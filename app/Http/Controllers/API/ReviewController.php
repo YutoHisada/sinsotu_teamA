@@ -27,14 +27,14 @@ class ReviewController extends Controller
         $limit = $request->limit;
         $sort = json_decode($request->sort, true);
         $count_items = $request->count_items;
-        // $query = Review::when($count_items, function ($query) use ($count_items) {
-        //     $query->count();
-        // });
+        $query = Review::when($count_items, function ($query) use ($count_items) {
+            $query->count();
+        });
         $count_items = Review::count();
         $reviews = Review::offset($offset)
             ->limit($limit)
             ->get();
-        // $count_items = $query->count();
+        $count_items = $query->count();
         if ($sort['isAsc']) {
             $reviews = Review::orderBy("{$sort['key']}", 'asc')->offset($offset)->limit($limit)->get();
         } else {

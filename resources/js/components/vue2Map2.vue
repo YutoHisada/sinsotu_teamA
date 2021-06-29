@@ -62,7 +62,6 @@
                 style="float: left"
                 ref="mapRef" 
                 >
-
                 <div v-if="circleMode">
                   <GmapCircle
                     :center="nowMark.position"
@@ -104,6 +103,8 @@
             <button v-if="own.is_admin && windowWidth <= 799" type="button" class="btn btn-dark absolute1" @click="onBack">
               戻る
             </button>
+            <button v-if="windowWidth > 800" @click="randomRest(0)" class="clear-decoration absolute2"><img src="images/random.png"></button>
+            <button v-if="windowWidth <= 799" @click="randomRest(0)" class="clear-decoration absolute3"><img src="images/random.png"></button>
           </div>
         </div>
         <div class="col-md-7">
@@ -113,8 +114,7 @@
               <label for="one">岡崎橋</label>
               <input type="radio" id="two" value="本社" v-model="place" />
               <label for="two">本社</label>
-              <button @click="randomRest(0)">ランダム店舗</button>
-              {{ reviewsFilter }}
+              <button @click="randomRest(0)" class="clear-decoration"><img class="relative" src="images/random1.png"></button>
             </div>
             <div class="col-md-8">
               <input type="text" v-model="geo" style="width: 250px" placeholder="上記以外の場所検索はこちら" />
@@ -199,8 +199,7 @@
           </div>
           <div class="row">
             <div class="col-md-12">
-              <div v-if="reviewsFilter.length === 0"><span class="span-header">レビュー一覧</span><router-link to="/create" class="btn btn-primary" @click="onResume(review)" style="float: right">投稿</router-link> 
-              <!-- <div v-else><span class="span-header">マーカーにあるレビュー</span><router-link to="/create" class="btn btn-primary" @click="onResume(review)" style="float: right">投稿</router-link></div> -->
+              <span class="span-header">レビュー一覧</span><router-link to="/create" class="btn btn-primary" @click="onResume(review)" style="float: right">投稿</router-link> 
                 <table class="table table-sm" key="processes">
                     <thead>
                       <tr>
@@ -231,9 +230,7 @@
                   :total-items="totalItems"
                   @pageChange="pageChange"
                 />
-                <loading :active.sync="isLoading" :is-full-page="fullPage"></loading>
-              </div>
-              <div v-else><span class="span-header">マーカーにあるレビュー</span><router-link to="/create" class="btn btn-primary" @click="onResume(review)" style="float: right">投稿</router-link>
+              <!-- <div v-else><span class="span-header">マーカーにあるレビュー</span><router-link to="/create" class="btn btn-primary" @click="onResume(review)" style="float: right">投稿</router-link>
                 <table class="table table-sm" key="processes">
                     <thead>
                       <tr>
@@ -259,13 +256,13 @@
                 </table>
                 <pagination
                   :page="currentPage"
-                  :items-per-page="itemsPerPage"
+                  :items-per-page="itemsPerPage2"
                   :max-visible-pages="maxVisiblePages"
                   :total-items="reviewsFilter.length"
                   @pageChange="pageChange"
                 />
-                <loading :active.sync="isLoading" :is-full-page="fullPage"></loading>
-              </div>
+              <loading :active.sync="isLoading" :is-full-page="fullPage"></loading>
+              </div> -->
             </div>
           </div>
         </div>
@@ -321,6 +318,7 @@ export default {
       own_user_name: "",
       currentPage: 0,
       itemsPerPage: 5,
+      itemsPerPage2: 10,
       maxVisiblePages: 5,
       totalItems: 0,
       offset: 0,
@@ -335,7 +333,7 @@ export default {
     }
   },
   async mounted() {
-    this.isLoading = true;
+    // this.isLoading = true;
     this.calculateWindowWidth()
     window.addEventListener('resize', this.calculateWindowWidth)
     document.getElementById("geoButton").disabled = true
@@ -431,6 +429,7 @@ export default {
         params: {
         offset: this.offset,
         limit: this.itemsPerPage,
+        limit1: this.itemsPerPage2,
         sort: this.sort,
         },
       })
@@ -955,6 +954,16 @@ export default {
     position: absolute;
     right:5%;
 }
+.absolute2 {
+  position: absolute;
+  right: 0%;
+  top: 10%;
+}
+.absolute3 {
+  position: absolute;
+  right: 4%;
+  top: 10%;
+}
 .sort-clicable {
   cursor: pointer;
   position: relative;
@@ -992,5 +1001,9 @@ input[type="range"]::-webkit-slider-thumb:hover {
 input[type="range"]::-webkit-slider-thumb:active {
   transform: scale(1.2);
 }
-
+.clear-decoration {
+    border: none;  /* 枠線を消す */
+    outline: none; /* クリックしたときに表示される枠線を消す */
+    background: transparent; /* 背景の灰色を消す */
+}
 </style>
