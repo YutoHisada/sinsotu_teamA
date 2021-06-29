@@ -8,7 +8,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'どこいこ') }}</title>
 
     <!-- Scripts -->
     <script src="{{ asset(mix('js/app.js')) }}" defer></script>
@@ -55,7 +55,7 @@
                     <img src="{{ asset('storage/head_logo.jpg') }}" alt="">
                 </div>
                 </a> --}}
-                <a class="navbar-brand" href="{{ url('/') }}">
+                <a class="navbar-brand font" href="{{ url('/') }}">
                     {{ config('app.name', 'Laravel') }}
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">

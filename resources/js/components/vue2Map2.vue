@@ -103,8 +103,8 @@
             <button v-if="own.is_admin && windowWidth <= 799" type="button" class="btn btn-dark absolute1" @click="onBack">
               戻る
             </button>
-            <button v-if="windowWidth > 800" @click="randomRest(0)" class="clear-decoration absolute2"><img src="images/random.png"></button>
-            <button v-if="windowWidth <= 799" @click="randomRest(0)" class="clear-decoration absolute3"><img src="images/random.png"></button>
+            <button v-if="windowWidth > 800" @click="randomRest(0)" class="btn btn-light absolute2"><img src="images/random.png"></button>
+            <button v-if="windowWidth <= 799" @click="randomRest(0)" class="btn btn-light absolute3"><img src="images/random.png"></button>
           </div>
         </div>
         <div class="col-md-7">
@@ -114,7 +114,6 @@
               <label for="one">岡崎橋</label>
               <input type="radio" id="two" value="本社" v-model="place" />
               <label for="two">本社</label>
-              <button @click="randomRest(0)" class="clear-decoration"><img class="relative" src="images/random1.png"></button>
             </div>
             <div class="col-md-8">
               <input type="text" v-model="geo" style="width: 250px" placeholder="上記以外の場所検索はこちら" />
@@ -183,12 +182,12 @@
             <input type="range" min="1" max="5" step="1" v-model="sliderNum" style="margin-bottom: 20px; margin-left: 10px" />
           </div>
           <div>
-            <span v-if="sliderNum==1">半径：200m 徒歩片道：約3分</span>
-            <span v-else-if="sliderNum==2">半径：400m 徒歩片道：約5分</span>
-            <span v-else-if="sliderNum==3">半径：600m 徒歩片道：約8分</span>
-            <span v-else-if="sliderNum==4">半径：800m 徒歩片道：約10分</span>
-            <span v-else-if="sliderNum==5">半径：1km 徒歩片道：約13分</span>
-            <label for="flexSwitchCheckDefault">半径表示:</label>
+            <span v-if="sliderNum==1">半径：200m 片道：約3分</span>
+            <span v-else-if="sliderNum==2">半径：400m 片道：約5分</span>
+            <span v-else-if="sliderNum==3">半径：600m 片道：約8分</span>
+            <span v-else-if="sliderNum==4">半径：800m 片道：約10分</span>
+            <span v-else-if="sliderNum==5">半径：1km 片道：約13分</span>
+            <label for="flexSwitchCheckDefault">検索範囲表示:</label>
             <input
               type="checkbox"
               id="flexSwitchCheckDefault"
@@ -447,7 +446,7 @@ export default {
     },
     setPlaceMarkers(genre) {
       // ゴリ押しズレ直し
-      this.infoOptions = {pixelOffset:{width: 15, height: 0,}}
+      this.infoOptions = {pixelOffset:{width: 0, height: -38,}}
 
       let map = this.$refs.mapRef.$mapObject
       let placeService = new google.maps.places.PlacesService(map);
@@ -484,15 +483,16 @@ export default {
                   iconUrl = 'images/ra-menIcon.png'
                   break
                 default:
-                  iconUrl = 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                  this.infoOptions = {pixelOffset:{width: 15, height: 0,}}
+                  iconUrl = 'images/otherPin.png'
               }
 
               // デフォルトのアイコンが大きめなので縮小
               let icon = {
                 url: iconUrl, // url
                 // scaledSize: new google.maps.Size(30, 30), // scaled size
-                origin: new google.maps.Point(0,0), // origin
-                anchor: new google.maps.Point(0, 0) // anchor
+                origin: new google.maps.Point(0, 0), // origin
+                anchor: new google.maps.Point(12, 38) // anchor
               };
 
 
@@ -638,7 +638,7 @@ export default {
       this.hoge = []
 
       if(this.genres.length > 0) {
-        for(var i=0;i < this.genres.length;i++) {
+        for(let i=0;i < this.genres.length;i++) {
           this.setPlaceMarkers(this.genres[i])
         }
       }
@@ -728,7 +728,8 @@ export default {
             iconUrl = 'images/ra-menIcon.png'
             break
           default:
-            iconUrl = 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+            this.infoOptions = {pixelOffset:{width: 15, height: 0,}}
+            iconUrl = 'images/otherPin.png'
         }
 
         // //ランダムジャンルで店舗検索
@@ -792,7 +793,7 @@ export default {
           }.bind(this)
         )
         //もしものゴリ押しズレ直し
-        this.infoOptions = {pixelOffset:{width: -1, height: -31,}}
+        this.infoOptions = {pixelOffset:{width: -1, height: -36,}}
       }
       else {
         alert('近くに営業しているお店が見つかりませんでした。\nもう一度お試しください。')
@@ -823,8 +824,8 @@ export default {
   },
   filters: {
     truncate: function(value) {
-      var length = 10;  //区切る文字数
-      var ommision = ''; //語尾
+      const length = 10;  //区切る文字数
+      const ommision = ''; //語尾
       if (value.length <= length) {
         return value;
       }

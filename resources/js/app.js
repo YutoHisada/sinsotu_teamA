@@ -180,6 +180,15 @@ router.beforeEach(async(to, from, next) => {
         if (to.path == '/') {
             router.push({ name: 'map' })
         }
+        if (to.path == '/user') {
+            router.push({ name: 'map' })
+        }
+        if (to.path == '/user/create') {
+            router.push({ name: 'map' })
+        }
+        if (to.name == 'user.show') {
+            router.push({ name: 'map' })
+        }
     }
     next()
 });
@@ -192,7 +201,7 @@ router.beforeEach(async(to, from, next) => {
  import * as VueGoogleMaps from 'vue2-google-maps'
  Vue.use(VueGoogleMaps, {
     load: {
-        key: 'AIzaSyDoT7ZAEG-K-twxebevNoXlOXY6P7v69GA',
+        key: 'AIzaSyAxisqbDtjxsblijsRF4isATj0EOFkG5bM',
         libraries: 'places',
         region: 'JP',
         language: 'ja',
