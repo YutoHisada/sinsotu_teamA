@@ -201,7 +201,7 @@ router.beforeEach(async(to, from, next) => {
  import * as VueGoogleMaps from 'vue2-google-maps'
  Vue.use(VueGoogleMaps, {
     load: {
-        key: 'AIzaSyAxisqbDtjxsblijsRF4isATj0EOFkG5bM',
+        key: '',
         libraries: 'places',
         region: 'JP',
         language: 'ja',
