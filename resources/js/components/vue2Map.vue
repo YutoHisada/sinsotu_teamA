@@ -1,222 +1,277 @@
 <template>
-  <div>
-    sinki
-    <GmapMap
-     :center="maplocation"
-     :zoom="zoomMap"
-     :draggable="true"
-     :options="{disableDefaultUI: true,
-      styles: [{
-        // お店アイコン
-        featureType: 'poi.business',
-        stylers: [
-          { visibility: 'off' }
-        ]},
-        // 学校アイコン
-        { featureType: 'poi.school',
-          stylers: [
-          { visibility: 'off' }
-        ]},
-        // 白い眼玉みたいなビルアイコン
-        { featureType: 'landscape.man_made',
-          elementType: 'labels.icon',
-          stylers: [
-          { visibility: 'off' }
-        ]},
-        // 病院アイコン
-        { featureType: 'poi.medical',
-          stylers: [
-          { visibility: 'off' }
-        ]},
-        // 公園アイコン
-        { featureType: 'poi.park',
-          stylers: [
-          { visibility: 'off' }
-        ]},
-        // 役所アイコン
-        { featureType: 'poi.government',
-          stylers: [
-          { visibility: 'off' }
-        ]},
-        // 神社アイコン
-        { featureType: 'poi.place_of_worship',
-          stylers: [
-          { visibility: 'off' }
-        ]},
-        // 観光名所アイコン
-        { featureType: 'poi.attraction',
-          stylers: [
-          { visibility: 'off' }
-        ]},
-        // スポーツ施設アイコン(緑のやつ)
-        { featureType: 'poi.sports_complex',
-          stylers: [
-          { visibility: 'off' }
-        ]},
-      ]}"
-      map-type-id="roadmap"
-      style="width: 500px; height: 500px"
-      ref="mapRef" 
-      >
+  <div class="container-fruid">
+    <div class="overflow-hidden">
+      <div class="row">
+        <div class="col-md-5">
+          <div class="row">
+            <GmapMap
+              :center="maplocation"
+              :zoom="zoomMap"
+              :draggable="true"
+              :options="{disableDefaultUI: true,
+                styles: [{
+                  // お店アイコン
+                  featureType: 'poi.business',
+                  stylers: [
+                    { visibility: 'off' }
+                  ]},
+                  // 学校アイコン
+                  { featureType: 'poi.school',
+                    stylers: [
+                    { visibility: 'off' }
+                  ]},
+                  // 白い眼玉みたいなビルアイコン
+                  { featureType: 'landscape.man_made',
+                    elementType: 'labels.icon',
+                    stylers: [
+                    { visibility: 'off' }
+                  ]},
+                  // 病院アイコン
+                  { featureType: 'poi.medical',
+                    stylers: [
+                    { visibility: 'off' }
+                  ]},
+                  // 公園アイコン
+                  { featureType: 'poi.park',
+                    stylers: [
+                    { visibility: 'off' }
+                  ]},
+                  // 役所アイコン
+                  { featureType: 'poi.government',
+                    stylers: [
+                    { visibility: 'off' }
+                  ]},
+                  // 神社アイコン
+                  { featureType: 'poi.place_of_worship',
+                    stylers: [
+                    { visibility: 'off' }
+                  ]},
+                  // 観光名所アイコン
+                  { featureType: 'poi.attraction',
+                    stylers: [
+                    { visibility: 'off' }
+                  ]},
+                  // スポーツ施設アイコン(緑のやつ)
+                  { featureType: 'poi.sports_complex',
+                    stylers: [
+                    { visibility: 'off' }
+                  ]},
+                ]}"
+                map-type-id="roadmap"
+                class="map col-md-12 relative"
+                style="float: left"
+                ref="mapRef" 
+                >
+                <div v-if="circleMode">
+                  <GmapCircle
+                    :center="nowMark.position"
+                    :radius=this.radius
+                    :options="{fillColor:'#7cfc00',fillOpacity:0.1}"
+                  ></GmapCircle>
+                </div>
 
-      <div v-if="circleMode">
-        <GmapCircle
-          :center="nowMark.position"
-          :radius=this.radius
-          :options="{fillColor:'#7cfc00',fillOpacity:0.1}"
-        ></GmapCircle>
-      </div>
+                <GmapMarker
+                  :position="nowMark.position"
+                  :clickable="false"
+                  :draggable="false"
+                  :icon="nowMark.iconUrl"
+                  :key="nowMark.id"
+                ></GmapMarker>
 
-      <GmapMarker
-        :position="nowMark.position"
-        :clickable="false"
-        :draggable="false"
-        :icon="nowMark.iconUrl"
-        :key="nowMark.id"
-      ></GmapMarker>
+                <GmapMarker v-for="m in markers"
+                  :position="m.position"
+                  :title="m.title"
+                  :clickable="true"
+                  :draggable="false"
+                  :icon="m.icon"
+                  :key="m.id"
+                  @click="toggleInfoWindow(m)"
+                  >
+                </GmapMarker>
 
-      <GmapMarker v-for="m in markers"
-        :position="m.position"
-        :title="m.title"
-        :clickable="true"
-        :draggable="false"
-        :icon="m.icon"
-        :key="m.id"
-        @click="toggleInfoWindow(m)"
-        >
-      </GmapMarker>
-
-      <GmapInfoWindow
-        :options="infoOptions"
-        :position="infoWindowPos"
-        :opened="infoWinOpen"
-        @closeclick="infoWinOpen=false"
-      ><div v-html="infoMsg"></div>
-      </GmapInfoWindow>
-    </GmapMap>
-
-    <input type="text" id="geo" v-model="geo" style="width: 200px">
-    <button id="geoButton" v-on:click="geocode"><i class="fas fa-search"></i></button>
-
-    <div class="form-check">
-      <input type="radio" id="one" value="岡崎橋ビル" v-model="place">
-      <label for="one">岡崎橋ビル</label>
-    </div>
-    <div class="form-check">
-      <input type="radio" id="two" value="本社" v-model="place">
-      <label for="two">本社</label>
-    </div>
-
-    <div>
-      <div class="form-check">
-        <input type="checkbox" id="checkBox1" value="和食" v-model="genres">和食
-        <input type="checkbox" id="checkBox2" value="洋食" v-model="genres">洋食
-        <input type="checkbox" id="checkBox3" value="中華" v-model="genres">中華
-      </div>
-      <div class="form-check">
-        <input type="checkbox" id="checkBox4" value="居酒屋" v-model="genres">居酒屋
-        <input type="checkbox" id="checkBox5" value="ラーメン" v-model="genres">ラーメン
-      </div>
-      <div class="form-check">
-        <input type="checkbox" id="checkBox6" value="弁当" v-model="genres">弁当
-      </div>
-    </div>
-
-    <input type="text" id="genreTextID" v-model="genreText" value="" style="width: 200px">
-    <button id="searchButton" v-on:click="search"><i class="fas fa-search"></i></button>
-    <br>
-    <select id="log" v-model="genreText" style="width: 200px">
-    </select>
-    <br>
-    <input type="range" min="1" max="5" step="1" v-model="sliderNum" style="width: 200px">
-    <br>
-    <span v-if="sliderNum==1">半径：200m 徒歩片道：約3分</span>
-    <span v-else-if="sliderNum==2">半径：400m 徒歩片道：約5分</span>
-    <span v-else-if="sliderNum==3">半径：600m 徒歩片道：約8分</span>
-    <span v-else-if="sliderNum==4">半径：800m 徒歩片道：約10分</span>
-    <span v-else-if="sliderNum==5">半径：1km 徒歩片道：約13分</span>
-    <br>
-
-    <div class="form-check form-switch">
-      <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" v-model="circleMode">
-      <label v-if="circleMode" for="flexSwitchCheckDefault">円描画ON</label>
-      <label v-else for="flexSwitchCheckDefault">円描画OFF</label>
-    </div>
-
-    <div>
-      <button @click="randomGenre">ランダムジャンル</button>
-      <button @click="randomRest(0)">ランダム店舗</button>
-    </div>
-
-    <router-link 
-      to="/create" 
-      class="btn btn-primary"
-      @click="onResume(review)"
-      >投稿
-    </router-link>
-
-    <div v-if="reviewsFilter.length == 0"><span class="span-header">全てのレビュー</span></div>
-    <div v-else><span class="span-header">マーカーにあるレビュー</span></div>
-
-    <table class="table table-sm" key="processes">
-            <div v-if="reviewsFilter.length == 0">
-              <thead>
-                <tr>
-                  <!--<th class="text-center bg-primary text-white">ID</th>-->
-                  <th class="text-center bg-primary text-white">投稿者</th>
-                  <th class="text-center bg-primary text-white">店名</th>
-                  <th class="text-center bg-primary text-white">コメント</th>
-                  <th class="text-center bg-primary text-white">削除</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(review, index) in reviews" :key=index class="bg-white">
-                  <!--<td class="text-center align-middle">{{ inventory.id }}</td>-->
-                  <td class="text-center align-middle">{{ review.user_name }}</td>
-                  <td class="text-center align-middle">
-                    <a v-bind:href="'https://www.google.com/maps/search/?api=1&query=' + review.name" target="_blank">{{ review.name }}</a>
-                  </td>
-                  <td class="text-center align-middle" style="white-space: pre;">
-                    <div v-if="review.comment.length > 10" @click="fullWindow(review.comment)">{{ review.comment|truncate }}<span style = "color: #00AEEF">...</span></div>
-                    <div v-else>{{ review.comment|truncate }}</div>
-                  </td>
-                  <td><button type="button" class="btn btn-danger" v-show="own.name === review.user_name" @click="onDelete(review.id)">削除</button></td>
-                </tr>
-              </tbody>
+                <GmapInfoWindow
+                  :options="infoOptions"
+                  :position="infoWindowPos"
+                  :opened="infoWinOpen"
+                  @closeclick="infoWinOpen=false"
+                ><div v-html="infoMsg"></div>
+                </GmapInfoWindow>
+            </GmapMap>
+            <button v-if="own.is_admin && windowWidth > 800" type="button" class="btn btn-dark absolute" @click="onBack">
+              戻る
+            </button>
+            <button v-if="own.is_admin && windowWidth <= 799" type="button" class="btn btn-dark absolute1" @click="onBack">
+              戻る
+            </button>
+            <button v-if="windowWidth > 800" @click="randomRest(0)" class="btn btn-light absolute2"><img src="images/random.png"></button>
+            <button v-if="windowWidth <= 799" @click="randomRest(0)" class="btn btn-light absolute3"><img src="images/random.png"></button>
+          </div>
+        </div>
+        <div class="col-md-7">
+          <div class="row">
+            <div class="col-md-4">
+              <input type="radio" id="one" value="岡崎橋ビル" v-model="place"/>
+              <label for="one">岡崎橋</label>
+              <input type="radio" id="two" value="本社" v-model="place" />
+              <label for="two">本社</label>
             </div>
-            <div v-else>
-              <thead>
-                <tr>
-                  <!--<th class="text-center bg-primary text-white">ID</th>-->
-                  <th class="text-center bg-primary text-white">投稿者</th>
-                  <th class="text-center bg-primary text-white">店名</th>
-                  <th class="text-center bg-primary text-white">コメント</th>
-                  <th class="text-center bg-primary text-white">削除</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(review, index) in reviewsFilter" :key=index class="bg-white">
-                  <!--<td class="text-center align-middle">{{ inventory.id }}</td>-->
-                  <td class="text-center align-middle">{{ review.user_name }}</td>
-                  <td class="text-center align-middle">
-                    <a v-bind:href="'https://www.google.com/maps/search/?api=1&query=' + review.name">{{ review.name }}</a>
-                  </td>
-                  <td class="text-center align-middle" style="white-space: pre;">
-                    <div v-if="review.comment.length > 10" @click="fullWindow(review.comment)">{{ review.comment|truncate }}<span style = "color: #00AEEF">...</span></div>
-                    <div v-else>{{ review.comment|truncate }}</div>
-                  </td>
-                  <td><button type="button" class="btn btn-danger" v-show="own.name === review.user_name" @click="onDelete(review.id)">削除</button></td>
-                </tr>
-              </tbody>
-            </div>       
-          </table>
-    
-            
+            <div class="col-md-8">
+              <input type="text" v-model="geo" style="width: 250px" placeholder="上記以外の場所検索はこちら" />
+              <button id="geoButton" v-on:click="geocode">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <div>
+                <input type="checkbox"
+                  id="checkBox1"
+                  value="和食"
+                  v-model="genres"
+                />和食        
+                <input
+                  type="checkbox"
+                  id="checkBox4"
+                  value="居酒屋"
+                  v-model="genres"
+                />居酒屋
+              </div>
+              <div>
+                <input
+                  type="checkbox"
+                  id="checkBox3"
+                  value="中華"
+                  v-model="genres"
+                />中華
+                <input
+                  type="checkbox"
+                  id="checkBox5"
+                  value="ラーメン"
+                  v-model="genres"
+                />ラーメン
+              </div>
+              <div>
+                <input
+                  type="checkbox"
+                  id="checkBox2"
+                  value="洋食"
+                  v-model="genres"
+                />洋食
+                <input
+                  type="checkbox"
+                  id="checkBox6"
+                  value="弁当"
+                  v-model="genres"
+                />弁当
+              </div>
+            </div>
+            <div class="col-md-8" style="float: left;">
+              <input type="text" v-model="genreText" value="" placeholder="上記以外のジャンル検索はこちら" style="width: 250px" />
+              <button id="searchButton" v-on:click="search">
+                <i class="fas fa-search"></i>
+              </button>
+              <div>
+                <select id="log" v-model="genreText" style="width: 250px; margin-bottom: 20px;">
+                </select>   
+              </div>
+            </div>
+          </div>
+          <div>
+            <label>検索範囲</label>
+            <input type="range" min="1" max="5" step="1" v-model="sliderNum" style="margin-bottom: 20px; margin-left: 10px" />
+          </div>
+          <div>
+            <span v-if="sliderNum==1">半径：200m 片道：約3分</span>
+            <span v-else-if="sliderNum==2">半径：400m 片道：約5分</span>
+            <span v-else-if="sliderNum==3">半径：600m 片道：約8分</span>
+            <span v-else-if="sliderNum==4">半径：800m 片道：約10分</span>
+            <span v-else-if="sliderNum==5">半径：1km 片道：約13分</span>
+            <label for="flexSwitchCheckDefault">検索範囲表示:</label>
+            <input
+              type="checkbox"
+              id="flexSwitchCheckDefault"
+              v-model="circleMode"
+            />
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <span class="span-header">レビュー一覧</span><router-link to="/create" class="btn btn-primary" @click="onResume(review)" style="float: right">投稿</router-link> 
+                <table class="table table-sm" key="processes">
+                    <thead>
+                      <tr>
+                        <th class="text-center bg-primary text-white" style="width: 30%;">投稿者</th>
+                        <th class="text-center bg-primary text-white" style="width: 30%;">店名</th>
+                        <th class="text-center bg-primary text-white" style="width: 30%;">コメント</th>
+                        <th class="text-center bg-primary text-white" style="width: 10%;">削除</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(review, index) in reviews" :key="index" class="bg-white" style="font-size: 80%;">
+                        <td class=""> {{ review.user_name }} </td>
+                        <td class=""><a v-bind:href="'https://www.google.com/maps/search/?api=1&query=' + review.name" target="_blank">{{ review.name }}</a></td>
+                        <td class="text-center align-middle" style="white-space: pre;">
+                          <div v-if="review.comment.length > 10" @click="fullWindow(review.comment)">{{ review.comment|truncate }}<span style = "color: #00AEEF">...</span></div>
+                          <div v-else>{{ review.comment|truncate }}</div>
+                        </td>
+                        <td>
+                          <i class="fas fa-trash-alt fa-2x red d-flex justify-content-center" v-if="own.name === review.user_name" @click="onDelete(review.id)"></i>
+                        </td>
+                      </tr>
+                    </tbody>
+                </table>
+                <pagination
+                  :page="currentPage"
+                  :items-per-page="itemsPerPage"
+                  :max-visible-pages="maxVisiblePages"
+                  :total-items="totalItems"
+                  @pageChange="pageChange"
+                />
+              <!-- <div v-else><span class="span-header">マーカーにあるレビュー</span><router-link to="/create" class="btn btn-primary" @click="onResume(review)" style="float: right">投稿</router-link>
+                <table class="table table-sm" key="processes">
+                    <thead>
+                      <tr>
+                        <th class="text-center bg-primary text-white" style="width: 30%;">投稿者</th>
+                        <th class="text-center bg-primary text-white" style="width: 30%;">店名</th>
+                        <th class="text-center bg-primary text-white" style="width: 30%;">コメント</th>
+                        <th class="text-center bg-primary text-white" style="width: 10%;">削除</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(review, index) in reviewsFilter" :key="index" class="bg-white" style="font-size: 80%;">
+                        <td class=""> {{ review.user_name }} </td>
+                        <td class=""><a v-bind:href="'https://www.google.com/maps/search/?api=1&query=' + review.name" target="_blank">{{ review.name }}</a></td>
+                        <td class="text-center align-middle" style="white-space: pre;">
+                          <div v-if="review.comment.length > 10" @click="fullWindow(review.comment)">{{ review.comment|truncate }}<span style = "color: #00AEEF">...</span></div>
+                          <div v-else>{{ review.comment|truncate }}</div>
+                        </td>
+                        <td>
+                          <i class="fas fa-trash-alt fa-2x red d-flex justify-content-center" v-if="own.name === review.user_name" @click="onDelete(review.id)"></i>
+                        </td>
+                      </tr>
+                    </tbody>
+                </table>
+                <pagination
+                  :page="currentPage"
+                  :items-per-page="itemsPerPage2"
+                  :max-visible-pages="maxVisiblePages"
+                  :total-items="reviewsFilter.length"
+                  @pageChange="pageChange"
+                />
+              <loading :active.sync="isLoading" :is-full-page="fullPage"></loading>
+              </div> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
           
   </div>
 </template>
 <script>
+import Pagination from './commons/Pagination.vue';
 export default {
+  components: { Pagination },
   data() {
     return {
       maplocation:{lat:0, lng:0},
@@ -247,7 +302,7 @@ export default {
       geo: '',
       geocoder: null,
       infoOptions: {
-        //吹き出しの表示位置調整
+        // 吹き出しの表示位置調整
         pixelOffset: {
           width: 15,
           height: 0,
@@ -257,13 +312,31 @@ export default {
       infoWinOpen: false,
       infoMsg: '',
 
+      own_user_name: "",
+      currentPage: 0,
+      itemsPerPage: 5,
+      itemsPerPage2: 10,
+      maxVisiblePages: 5,
+      totalItems: 0,
+      offset: 0,
+      isLoading: false,
+      fullPage: false,
+      windowWidth: 0,
+      sort: {
+        key: "id", // ソートキー
+        isAsc: false // 昇順ならtrue,降順ならfalse
+      },
+
     }
   },
   async mounted() {
+    // this.isLoading = true;
+    this.calculateWindowWidth()
+    window.addEventListener('resize', this.calculateWindowWidth)
     document.getElementById("geoButton").disabled = true
     document.getElementById("searchButton").disabled = true
     document.getElementById("log").disabled = true
-    this.getItems();
+    this.getItems()
     // 現在地の取得
     if (false) {
       navigator.geolocation.getCurrentPosition(
@@ -299,7 +372,16 @@ export default {
       });
     }
   },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.calculateWindowWidth);
+  },
   methods: {
+    pageChange(page, start, end) {
+      if (end == 1) return
+      this.currentPage = page
+      this.offset = start
+      this.getItems()
+    },
     fullWindow(Message)
     {
       alert(Message)
@@ -308,7 +390,7 @@ export default {
       this.$router.push({ name: 'create', params: { ReviewId: Review.id } })
     },
     onBack: function () {
-      this.$router.go(-1)
+      this.$router.push({name: "menu"});
     },
     onDelete: function (review_id) {
       if (!confirm('削除してもよろしいですか？')) {
@@ -327,26 +409,42 @@ export default {
         //
       })
     },
-    getItems: function () {
-      this.isLoading = true;
-      const api = axios.create()
-      axios.all([
-        api.get('/api/review', {
-          params: {
-            own_user_name: this.own_user_name,
-            offset: this.offset,
-            limit: this.itemsPerPage,
-          },
-        }),
-      ]).then(axios.spread((res1, res2, res3, res4) => {
-        this.reviews = res1.data
-        
-        this.isLoading = false
-      }))
+    handleResize: function() {
+      if (window.innnerwidth <= 800) {
+        this.view = true
+      } else {
+        this.view = false
+      }
+    },
+    calculateWindowWidth() {
+      this.windowWidth = window.innerWidth;
+    },
+
+    async getItems() {
+      this.isLoading = true
+      const { data } = await axios.get('/api/review', {
+        params: {
+        offset: this.offset,
+        limit: this.itemsPerPage,
+        limit1: this.itemsPerPage2,
+        sort: this.sort,
+        },
+      })
+      this.reviews = data.reviews
+      this.totalItems = data.total_items
+      this.isLoading = false
+    },
+    async sortBy(key) {
+      this.sort.isAsc = this.sort.key === key ? !this.sort.isAsc : true;
+      this.sort.key = key;
+      await this.getItems();
+    },
+    sortedClass(key) {
+      return this.sort.key === key ? `sorted ${this.sort.isAsc ? "asc" : "desc"}`: ""
     },
     setPlaceMarkers(genre) {
       // ゴリ押しズレ直し
-      this.infoOptions = {pixelOffset:{width: 15, height: 0,}}
+      this.infoOptions = {pixelOffset:{width: 0, height: -38}}
 
       let map = this.$refs.mapRef.$mapObject
       let placeService = new google.maps.places.PlacesService(map);
@@ -383,15 +481,14 @@ export default {
                   iconUrl = 'images/ra-menIcon.png'
                   break
                 default:
-                  iconUrl = 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                  iconUrl = 'images/sonotaIcon.png'
               }
 
-              // デフォルトのアイコンが大きめなので縮小
               let icon = {
                 url: iconUrl, // url
                 // scaledSize: new google.maps.Size(30, 30), // scaled size
-                origin: new google.maps.Point(0,0), // origin
-                anchor: new google.maps.Point(0, 0) // anchor
+                origin: new google.maps.Point(0, 0), // origin
+                anchor: new google.maps.Point(12, 38) // anchor
               };
 
 
@@ -448,7 +545,6 @@ export default {
       }
       else if(select.length > 0)
       {
-        // データがあればプルダウン許可
         select.disabled = false
       }
       else {
@@ -511,8 +607,6 @@ export default {
           }
          
           if (place.opening_hours.isOpen() == true) {
-            // We know it's open.
-            // console.log(isOpenNow)
             msg += '営業しています'
           }
           else {
@@ -537,7 +631,7 @@ export default {
       this.hoge = []
 
       if(this.genres.length > 0) {
-        for(var i=0;i < this.genres.length;i++) {
+        for(let i=0;i < this.genres.length;i++) {
           this.setPlaceMarkers(this.genres[i])
         }
       }
@@ -627,7 +721,7 @@ export default {
             iconUrl = 'images/ra-menIcon.png'
             break
           default:
-            iconUrl = 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+            iconUrl = 'images/sonotaIcon.png'
         }
 
         // //ランダムジャンルで店舗検索
@@ -691,7 +785,7 @@ export default {
           }.bind(this)
         )
         //もしものゴリ押しズレ直し
-        this.infoOptions = {pixelOffset:{width: -1, height: -31,}}
+        this.infoOptions = {pixelOffset:{width: -1, height: -36,}}
       }
       else {
         alert('近くに営業しているお店が見つかりませんでした。\nもう一度お試しください。')
@@ -709,30 +803,21 @@ export default {
     }
   },
   computed: {
-    sortReviews() {
-      if(this.reviewsFilter.length == 0) {
-        return this.reviews.slice().reverse();
-      }
-      else {
-        return this.reviewsFilter.slice().reverse();
-      }
-    },
     own() {
-      return this.$store.state.user
+      return this.$store.state.user;
     },
-    getPageCount() {
-      if(this.reviewsFilter.length == 0) {
-        return Math.ceil(this.reviews.length / this.parpage)
-      }
-      else {
-        return Math.ceil(this.reviewsFilter.length / this.parpage)
-      }
-    }
+  },
+  created() {
+    window.addEventListener('resize', this.handleResize)
+    this.handleResize()
+  },
+  destroyed() {
+    window.removeEventListener('resize', this.handleResize)
   },
   filters: {
     truncate: function(value) {
-      var length = 10;  //区切る文字数
-      var ommision = ''; //語尾
+      const length = 10;  //区切る文字数
+      const ommision = ''; //語尾
       if (value.length <= length) {
         return value;
       }
@@ -840,3 +925,78 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+// ダサいので円形表示は保留 border-radius: 250px;
+.map {
+    width: 500px;
+    height: 500px;
+    display: inline-block;
+}
+.red {
+    color:red;
+}
+.relative {
+    position: relative;
+}
+.absolute {
+    position: absolute;
+    right: 0%;
+}
+.absolute1 {
+    position: absolute;
+    right:5%;
+}
+.absolute2 {
+  position: absolute;
+  right: 0%;
+  top: 10%;
+}
+.absolute3 {
+  position: absolute;
+  right: 4%;
+  top: 10%;
+}
+.sort-clicable {
+  cursor: pointer;
+  position: relative;
+}
+
+// body {
+//   font-family: "Dosis", Helvetica, Arial, sans-serif; 
+//   background: #ecf0f1;
+//   color: #34495e;
+//   padding-top: 40px;
+//   text-shadow: white 1px 1px 1px;
+// }
+input[type="range"] {
+  -webkit-appearance: none;
+  background-color: #bdc3c7;
+  width: 200px;
+  height: 5px;
+  border-radius: 5px;
+//   outline: 0;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  background-color: #007bff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid white;
+  cursor: pointer;
+  transition: .3s ease-in-out;
+}​
+input[type="range"]::-webkit-slider-thumb:hover {
+  background-color: white;
+  border: 2px solid #007bff;
+}
+input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(1.2);
+}
+.clear-decoration {
+    border: none;  /* 枠線を消す */
+    outline: none; /* クリックしたときに表示される枠線を消す */
+    background: transparent; /* 背景の灰色を消す */
+}
+</style>

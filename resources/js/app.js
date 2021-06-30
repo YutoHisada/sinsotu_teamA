@@ -81,10 +81,6 @@ Vue.component('select-name', require('./components/commons/SelectName.vue').defa
 Vue.component("number-input", require("./components/commons/NumberInput.vue").default);
 Vue.component('main-menu', require('./components/MainMenu.vue').default);
 Vue.component('review-create', require('./components/ReviewCreate.vue').default);
-Vue.component('main-map', require('./components/MainMap.vue').default);
-Vue.component('main-map2', require('./components/MainMap2.vue').default);
-Vue.component('main-map3', require('./components/MainMap3.vue').default);
-Vue.component('main-map4', require('./components/MainMap4.vue').default);
 
 
 const router = new VueRouter({
@@ -93,7 +89,7 @@ const router = new VueRouter({
         //　課題
         { name: 'menu', path: '/', component: require('./components/MainMenu.vue').default },
         // { name: 'map', path: '/map', component: require('./components/MainMap.vue').default },
-        { name: 'map', path: '/map', component: require('./components/vue2Map2.vue').default },
+        { name: 'map', path: '/map', component: require('./components/vue2Map.vue').default },
         { name: 'create', path: '/create/:restname', component: require('./components/ReviewCreate.vue').default },
         { name: 'create', path: '/create', component: require('./components/ReviewCreate.vue').default },
         // mock
@@ -193,15 +189,10 @@ router.beforeEach(async(to, from, next) => {
     next()
 });
 
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
  import * as VueGoogleMaps from 'vue2-google-maps'
  Vue.use(VueGoogleMaps, {
     load: {
-        key: 'AIzaSyAxisqbDtjxsblijsRF4isATj0EOFkG5bM',
+        key: '',
         libraries: 'places',
         region: 'JP',
         language: 'ja',
