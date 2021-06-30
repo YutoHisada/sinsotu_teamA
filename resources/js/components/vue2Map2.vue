@@ -193,8 +193,6 @@
               id="flexSwitchCheckDefault"
               v-model="circleMode"
             />
-            <!-- <span v-if="circleMode"> ON</span>
-            <span v-else> OFF</span> -->
           </div>
           <div class="row">
             <div class="col-md-12">
@@ -304,7 +302,7 @@ export default {
       geo: '',
       geocoder: null,
       infoOptions: {
-        //吹き出しの表示位置調整
+        // 吹き出しの表示位置調整
         pixelOffset: {
           width: 15,
           height: 0,
@@ -446,7 +444,7 @@ export default {
     },
     setPlaceMarkers(genre) {
       // ゴリ押しズレ直し
-      this.infoOptions = {pixelOffset:{width: 0, height: -38,}}
+      this.infoOptions = {pixelOffset:{width: 0, height: -38}}
 
       let map = this.$refs.mapRef.$mapObject
       let placeService = new google.maps.places.PlacesService(map);
@@ -483,11 +481,9 @@ export default {
                   iconUrl = 'images/ra-menIcon.png'
                   break
                 default:
-                  this.infoOptions = {pixelOffset:{width: 15, height: 0,}}
-                  iconUrl = 'images/otherPin.png'
+                  iconUrl = 'images/sonotaIcon.png'
               }
 
-              // デフォルトのアイコンが大きめなので縮小
               let icon = {
                 url: iconUrl, // url
                 // scaledSize: new google.maps.Size(30, 30), // scaled size
@@ -549,7 +545,6 @@ export default {
       }
       else if(select.length > 0)
       {
-        // データがあればプルダウン許可
         select.disabled = false
       }
       else {
@@ -612,8 +607,6 @@ export default {
           }
          
           if (place.opening_hours.isOpen() == true) {
-            // We know it's open.
-            // console.log(isOpenNow)
             msg += '営業しています'
           }
           else {
@@ -728,8 +721,7 @@ export default {
             iconUrl = 'images/ra-menIcon.png'
             break
           default:
-            this.infoOptions = {pixelOffset:{width: 15, height: 0,}}
-            iconUrl = 'images/otherPin.png'
+            iconUrl = 'images/sonotaIcon.png'
         }
 
         // //ランダムジャンルで店舗検索
