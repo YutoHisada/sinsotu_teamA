@@ -103,8 +103,22 @@
             <button v-if="own.is_admin && windowWidth <= 799" type="button" class="btn btn-dark absolute1" @click="onBack">
               戻る
             </button>
-            <button v-if="windowWidth > 800" @click="randomRest(0)" class="btn btn-light absolute2"><img src="images/random.png"></button>
-            <button v-if="windowWidth <= 799" @click="randomRest(0)" class="btn btn-light absolute3"><img src="images/random.png"></button>
+            <button v-if="windowWidth > 800" @click="randomRest(0)" class="btn btn-light absolute2" id="popover"><img src="images/random.png"></button>
+            <b-popover
+              title="ランダムでお店を決定します"
+              target="popover"
+              triggers="hover focus"
+              placement="left"
+              boundary="viewport"
+            />
+            <button v-if="windowWidth <= 799" @click="randomRest(0)" class="btn btn-light absolute3" id="popover2"><img src="images/random.png"></button>
+            <b-popover 
+              :show.sync="show" 
+              title="ランダムでお店を決定します"
+              target="popover2"
+              placement="left"
+              boundary="viewport"
+            />
           </div>
         </div>
         <div class="col-md-7">
@@ -326,7 +340,7 @@ export default {
         key: "id", // ソートキー
         isAsc: false // 昇順ならtrue,降順ならfalse
       },
-
+      show: false,
     }
   },
   async mounted() {
@@ -371,6 +385,31 @@ export default {
         );
       });
     }
+
+    $('[data-toggle="popover"]').popover();  //ver4.3の方法
+    //スマホ画面が呼び出されたら
+    if(this.windowWidth <= 799)
+    {
+      //画面が表示されてから100ms後にポップが表示される
+      setTimeout(() => {
+        this.show = true
+        console.log(this.show)}
+        ,100
+      )
+      // this.show = true
+      console.log(this.show)
+      //ポップが表示されてから3000ms後にポップを非表示にする
+      setTimeout(() => {
+        this.show = false
+        console.log(this.show)}
+        ,3000
+      )
+      
+    }
+    else if(this.windowWidth > 800)
+    {
+      this.show = false
+    }
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.calculateWindowWidth);
@@ -410,7 +449,7 @@ export default {
       })
     },
     handleResize: function() {
-      if (window.innnerwidth <= 800) {
+      if (window.innerwidth <= 800) {
         this.view = true
       } else {
         this.view = false
