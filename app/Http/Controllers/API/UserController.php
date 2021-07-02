@@ -117,7 +117,7 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Employee $user)
+    public function destroy(User $user)
     {
         DB::transaction(function () use ($user) {
             if (isset($user->id)) {
@@ -125,6 +125,10 @@ class UserController extends Controller
             }
             $user->delete();
         });
+
+        return response()->json([
+            'result' => true,
+        ]);
     }
 
     /**

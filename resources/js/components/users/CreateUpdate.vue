@@ -263,10 +263,17 @@ export default {
             this.$router.go(-1)
         },
         onDelete: function () {
+            let _this = this
+            this.errorMessage = ""
+            if (this.own.id == this.user_id) {
+                this.errorMessage = "同じアカウントは削除できません。"
+                this.invalid = true
+                return
+            }
+
             if (!confirm('削除してもよろしいですか？')) {
                 return
             }
-            let _this = this
             axios.delete('/api/user/'+this.user.id)
             .then(function (resp) {
                 alert('削除しました。')
