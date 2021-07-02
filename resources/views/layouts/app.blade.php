@@ -23,6 +23,9 @@
     <!-- Styles -->
     <link href="{{ asset(mix('css/app.css')) }}" rel="stylesheet">
 
+    <!-- ファビコン -->
+    <!-- <link rel="icon" href="../../../public/images/favicon.ico"> -->
+
     <style>
         html {
             min-height: 100%;
@@ -50,12 +53,13 @@
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light navbar-laravel">
             <div class="container-fluid">
-                {{-- <a class="navbar-brand" href="{{ url('/') }}">
+                <!-- {{-- <a class="navbar-brand" href="{{ url('/') }}">
                 <div>
                     <img src="{{ asset('storage/head_logo.jpg') }}" alt="">
                 </div>
-                </a> --}}
+                </a> --}} -->
                 <a class="navbar-brand font" href="{{ url('/') }}">
+                    <img src="/favicon.ico">
                     {{ config('app.name', 'Laravel') }}
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
