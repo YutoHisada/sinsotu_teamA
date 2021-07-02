@@ -186,7 +186,8 @@
                 <i class="fas fa-search"></i>
               </button>
               <div>
-                <select id="log" v-model="genreText" style="width: 250px; margin-bottom: 20px;">
+                <select id="log" @change="changeSelect" style="width: 250px; margin-bottom: 20px;">
+                  <option></option>
                 </select>   
               </div>
             </div>
@@ -310,7 +311,7 @@ export default {
       genreTextHoge: '',
       sliderNum: 3,
       range: 200,
-      radius: 400,
+      radius: 600,
       zoomMap: 15,
       circleMode: false,
       geo: '',
@@ -393,15 +394,14 @@ export default {
       //画面が表示されてから100ms後にポップが表示される
       setTimeout(() => {
         this.show = true
-        console.log(this.show)}
+        }
         ,100
       )
       // this.show = true
-      console.log(this.show)
       //ポップが表示されてから3000ms後にポップを非表示にする
       setTimeout(() => {
         this.show = false
-        console.log(this.show)}
+        }
         ,3000
       )
       
@@ -481,6 +481,9 @@ export default {
     sortedClass(key) {
       return this.sort.key === key ? `sorted ${this.sort.isAsc ? "asc" : "desc"}`: ""
     },
+    changeSelect() {
+      this.genreText = document.getElementById("log").value
+    },
     setPlaceMarkers(genre) {
       // ゴリ押しズレ直し
       this.infoOptions = {pixelOffset:{width: 0, height: -38}}
@@ -558,9 +561,18 @@ export default {
       this.genres = []
 
       const select = document.getElementById("log")
-      const result = this.logs.filter(function(value){
-        return value === this.genreText
-      }.bind(this))
+
+      let result = ''
+      let selectOption = 0
+      for(let i = 0;i < this.logs.length;i++) {
+        if(this.logs[i] == this.genreText) {
+          result = this.genreText
+          selectOption = i
+        }
+      }
+      // const result = this.logs.filter(function(value){
+      //   return value === this.genreText
+      // }.bind(this))
       // 同じものが無ければ
       if(result.length === 0)
       {
@@ -569,16 +581,16 @@ export default {
         const option = document.createElement("option")
         option.text = this.genreText
         option.value = this.genreText
-        // ここで要素を先頭に追加
-        select.add(option, 0)
+        // ここで要素を二番目に追加
+        select.add(option, 1)
       }
       // プルダウンの項目数
       this.optionCount = select.length
 
-      if(select.length > 5)
+      if(select.length > 6)
       {
-        // 0から数えて5番目の要素削除
-        select.remove(5)
+        // 0から数えて6番目の要素削除
+        select.remove(6)
         // 末尾削除
         this.logs.pop()
       }
@@ -596,6 +608,9 @@ export default {
 
       this.genreTextHoge = this.genreText
       this.genreText = ''
+
+      // 空白分があるため+1をする
+      document.getElementById("log").options[selectOption+1].selected = true;
     },
     async geocode() {
       this.geocoder.geocode({
@@ -711,7 +726,6 @@ export default {
       }
     },
     async randomRest(count) {
-      console.log(count)
       if(count < 10) {
         this.infoWinOpen=false
         this.resetGenre()
@@ -802,7 +816,7 @@ export default {
                     else {
                       this.randomRest(count+1)
                     }
-                    
+
                     this.infoMsg = `${place.title}<br><a href="https://www.google.com/maps/search/?api=1&query=${place.title}"target="_blank" >Googleマップで見る</a><br>${msg}`
                     this.infoMsg += `<br><button onclick='location.href="/create/${place.title}"' value=''>レビューを投稿</button>`
                     this.infoWindowPos = place.position;
@@ -899,6 +913,7 @@ export default {
     },
     genres: async function(){
       if(this.genres.length > 0) {
+        document.getElementById("log").options[0].selected = true;
         this.genreTextHoge = ''
       }
 
@@ -929,6 +944,7 @@ export default {
       this.infoWinOpen=false
     },
     sliderNum: async function(){
+      this.infoWinOpen=false
       let searchRange = this.sliderNum * this.range
       this.radius = searchRange
 
@@ -951,15 +967,16 @@ export default {
         default:
           this.zoomMap = 15
       }
-
-      if(this.genres.length > 0) {
-        this.genresFunc()
-      }
-      else if(this.genreTextHoge != ''){
-        this.markers = []
-        this.setPlaceMarkers(this.genreTextHoge)
-      }
-      this.infoWinOpen=false
+      setTimeout(() => {
+        if(this.genres.length > 0) {
+          this.genresFunc()
+        }
+        else if(this.genreTextHoge != ''){
+          this.markers = []
+          this.setPlaceMarkers(this.genreTextHoge)
+        }
+      },500)
+      
     },
   }
 }

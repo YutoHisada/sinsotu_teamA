@@ -157,7 +157,6 @@ const store = new Vuex.Store({
         //   context.commit('getUser')
           const res = await axios.get('/api/user/info')
           this.state.user = res.data
-          console.log("getUser2")
         }
     },
     plugins: [createPersistedState()],
@@ -192,7 +191,7 @@ router.beforeEach(async(to, from, next) => {
  import * as VueGoogleMaps from 'vue2-google-maps'
  Vue.use(VueGoogleMaps, {
     load: {
-        key: '',
+        key: 'AIzaSyDoT7ZAEG-K-twxebevNoXlOXY6P7v69GA',
         libraries: 'places',
         region: 'JP',
         language: 'ja',

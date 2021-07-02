@@ -12,10 +12,6 @@ class ReviewsTableSeeder extends Seeder
      */
     public function run()
     {
-        $model = new Review;
-        $model->user_id = 2;
-        $model->name = '鶏そば　小箱';
-        $model->comment = 'とても美味しかった';
-        $model->save();
+        
     }
 }
