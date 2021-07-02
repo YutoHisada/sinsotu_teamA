@@ -825,7 +825,7 @@ export default {
                   }, function (place, status) {
 
                     if (status !== 'OK') return // something went wrong
-
+                    
                     if(place.opening_hours != undefined) {
                       if (place.opening_hours.isOpen() == false) {
                         this.randomRest(count+1)
@@ -834,6 +834,7 @@ export default {
                     else {
                       this.randomRest(count+1)
                     }
+                    
 
                     this.infoMsg = `${place.title}<br><a href="https://www.google.com/maps/search/?api=1&query=${place.title}"target="_blank" >Googleマップで見る</a><br>${msg}`
                     this.infoMsg += `<br><button onclick='location.href="/create/${place.title}"' value=''>レビューを投稿</button>`

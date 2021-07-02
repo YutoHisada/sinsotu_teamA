@@ -120,18 +120,11 @@ class UserController extends Controller
     public function destroy(Employee $user)
     {
         DB::transaction(function () use ($user) {
+            if (isset($user->id)) {
+                $user->delete();
+            }
             $user->delete();
-
-            $user->delete();
-
-            DB::table('employees')
-                ->where('position', '>', $user->position)
-                ->decrement('position');
         });
-
-        return response()->json([
-            'result' => true,
-        ]);
     }
 
     /**
